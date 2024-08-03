@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Bimestres</title>
+    <title>Admin</title>
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -16,7 +16,7 @@
         }
 
         .navbar {
-            background-color: rgba(255,140,0, 0.8); /* Transparência */
+            background-color: rgba(255, 255, 255, 0.5); /* Transparência */
         }
 
         .navbar .btn-back {
@@ -35,8 +35,8 @@
             background-image: url("{{asset('/images/bim-button-bg.jpg')}}"); /* Path to the image */
             background-size: cover;
             background-position: center;
-            width: 200px;
-            height: 250px;
+            width: 150px;
+            height: 200px;
             margin: 20px;
             border-radius: 15px;
             display: flex;
@@ -60,21 +60,16 @@
 
     <nav class="navbar navbar-expand-lg navbar-light fixed-top">
         <div class="container">
-            <a href="javascript:history.back()" class="btn-back">
+            <a href="/bimestres" class="btn-back">
                 <i class="fa fa-arrow-left"></i>
             </a>
-            <div class="ms-auto">
-                <a href="/admin" class="btn btn-outline-primary">Admin</a>
-            </div>
         </div>
     </nav>
 
 
     <div class="bimestres-container">
-        <a href="{{ url('/listaralunos/1') }}" class="bimestre-box">ESTÁGIO 1:<br>PLANEJAMENTO</a>
-        <a href="{{ url('/listaralunos/2') }}" class="bimestre-box">ESTÁGIO 1:<br>DESENVOLVIMENTO</a>
-        <a href="{{ url('/listaralunos/3') }}" class="bimestre-box">ESTÁGIO 2:<br>DESENVOLVIMENTO</a>
-        <a href="{{ url('/listaralunos/4') }}" class="bimestre-box">ESTÁGIO 2:<br>FINAL</a>
+        <a href="{{ url('/admin/alunosadmin') }}" class="bimestre-box">Alunos</a>
+        <a href="{{ url('/admin/professoresadmin') }}" class="bimestre-box">Professores</a>
     </div>
 
 
