@@ -155,9 +155,9 @@
                                                 <span class="label label-default">
                                                     <a href="#" class="btn btn-sm btn-primary">Controlar Alunos</a>
                                                     @if($users->admin == FALSE)
-                                                    <a href="/bimestres/admin/professores/darprivilegios" class="btn btn-sm btn-success">Tirar Privilégios</a>
+                                                    <a href="/bimestres/admin/professores/tirarprivilegios/$users->email" class="btn btn-sm btn-success">Tirar Privilégios</a>
                                                     @else
-                                                    <a href="#" class="btn btn-sm btn-success">Dar Privilégios</a>
+                                                    <a href="/admin/professoresadmin/darprivilegios/$users->email" class="btn btn-sm btn-success">Dar Privilégios</a>
                                                     @endif
                                                     <a href="#" class="btn btn-sm btn-success">Desativar</a>
                                                 </span>

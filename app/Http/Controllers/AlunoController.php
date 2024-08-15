@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Aluno;
 use Illuminate\Http\Request;
+use App\Http\Controllers\UsuarioController;
 use App\Models\Users;
 use Illuminate\Support\Facades\Auth;
 
@@ -26,11 +27,15 @@ class AlunoController extends Controller
         return view('listaralunos', compact('alunos'));
     }
 
-    public function pegarAlunosAtivos()
+    public function pegarAlunosEProfessoresAtivos()
     {
-        $alunos = Aluno::where('ativo',TRUE)->get();
+        $alunos = Aluno::where('ativo', TRUE)->get();
 
-        return view('alunosadmin',compact('alunos'));
+        $usuarioController = new UsuarioController();
+
+        $users = $usuarioController->pegarUsuariosAtivos()->getData()['users'];
+
+        return view('alunosadmin', compact('alunos', 'users'));
     }
 
     public function filtrarAlunosAtivos($filtros)
@@ -104,3 +109,6 @@ class AlunoController extends Controller
     }
 
 }
+
+// f29400 laranja
+// f707173 cinza
