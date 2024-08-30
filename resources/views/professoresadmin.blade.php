@@ -111,7 +111,6 @@
             margin-bottom: 10px;
         }
 
-        
     </style>
 </head>
 <body>
@@ -127,7 +126,15 @@
         </div>
     </nav>
 
-    
+    <div class="container mt-3">
+        @if(session('alert'))
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <strong>Atenção!</strong> {{ session('alert') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+    </div>
+
     <div class="container">
         <div class="row">
             <div class="col-lg-12">
@@ -139,27 +146,34 @@
                                     <tr>
                                         <th class="text-center"><span>Nome</span></th>
                                         <th class="text-center"><span>Email</span></th>
-                                        <th class="text-center"><span>Ações</span></th>
+                                        <th class="text-center"><span>Admin</span></th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach($users as $users)
+                                    @foreach($users as $user)
                                         <tr>
                                             <td class="text-center">
-                                                {{$users->nome }}
+                                                {{$user->nome }}
                                             </td>
                                             <td class="text-center">
-                                                {{ $users->email }}
+                                                {{ $user->email }}
+                                            </td>
+                                            <td class="text-center">
+                                            @if($user->isadmin == TRUE)
+                                                Sim
+                                            @else
+                                                Não
+                                            @endif
                                             </td>
                                             <td class="text-end">
                                                 <span class="label label-default">
                                                     <a href="#" class="btn btn-sm btn-primary">Controlar Alunos</a>
-                                                    @if($users->admin == FALSE)
-                                                    <a href="/bimestres/admin/professores/tirarprivilegios/$users->email" class="btn btn-sm btn-success">Tirar Privilégios</a>
+                                                    @if($user->isadmin == TRUE)
+                                                    <a href="/admin/professoresadmin/tirarprivilegios/{{$user->email}}" class="btn btn-sm btn-success">Tirar Privilégios</a>
                                                     @else
-                                                    <a href="/admin/professoresadmin/darprivilegios/$users->email" class="btn btn-sm btn-success">Dar Privilégios</a>
+                                                    <a href="/admin/professoresadmin/darprivilegios/{{$user->email}}" class="btn btn-sm btn-success">Dar Privilégios</a>
                                                     @endif
-                                                    <a href="#" class="btn btn-sm btn-success">Desativar</a>
+                                                    <a href="/admin/professoresadmin/desativar/{{$user->email}}" class="btn btn-sm btn-success">Desativar</a>
                                                 </span>
                                             </td>
                                         </tr>

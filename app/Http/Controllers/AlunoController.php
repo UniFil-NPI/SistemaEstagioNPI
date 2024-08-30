@@ -5,16 +5,22 @@ namespace App\Http\Controllers;
 use App\Models\Aluno;
 use Illuminate\Http\Request;
 use App\Http\Controllers\UsuarioController;
+use App\Http\Controllers\ClassroomController;
+use League\Csv\Reader;
+use League\Csv\Statement;
+use Illuminate\Support\Facades\Validator;
+
+
 use App\Models\Users;
 use Illuminate\Support\Facades\Auth;
 
 class AlunoController extends Controller
 {
-    public function pegarAlunosPorBimestre($bimestre)
+    public function pegarAlunosPorEtapa($etapa)
     {
         $emailProfessor = Auth::user()->email;
         $alunos = Aluno::where('email_orientador', $emailProfessor)
-                       ->where('bimestre', $bimestre)
+                       ->where('etapa', $etapa)
                        ->get();
 
         $alunos->transform(function ($aluno) {
@@ -27,15 +33,27 @@ class AlunoController extends Controller
         return view('listaralunos', compact('alunos'));
     }
 
-    public function pegarAlunosEProfessoresAtivos()
+
+    public function pegarInformacoesAdmin()
     {
         $alunos = Aluno::where('ativo', TRUE)->get();
 
         $usuarioController = new UsuarioController();
+        $users = $usuarioController->pegarUsuariosAtivos();
 
-        $users = $usuarioController->pegarUsuariosAtivos()->getData()['users'];
+        $classroomController = new ClassroomController;
+        $classroomData = $classroomController->listarCursosUserAutenticado();
+        $classroomBanco = $classroomController->pegarClassrooms();
 
-        return view('alunosadmin', compact('alunos', 'users'));
+        $classroomUser = [];
+        foreach ($classroomData['courses'] as $course) {
+            $classroomUser[] = [
+                'id' => $course['id'],
+                'ownerId' => $course['ownerId'],
+                'nome' => $course['name'],
+            ];
+        }
+        return view('alunosadmin', compact('alunos', 'users', 'classroomUser', 'classroomBanco'));
     }
 
     public function filtrarAlunosAtivos($filtros)
@@ -61,7 +79,7 @@ class AlunoController extends Controller
             $aluno->save();
         }
 
-        return $this->pegarAlunosAtivos();
+        return $this->pegarInformacoesAdmin();
     }
 
     public function reativar($emailAluno)
@@ -76,36 +94,151 @@ class AlunoController extends Controller
         return $this->pegarAlunosDesativos();
     }
 
-    public function alterarProfessor($emailAluno,$emailProfessor)
+    public function alterarProfessor($emailProfessor, $emailAluno)
+    {
+        $professor = Users::where('email', $emailProfessor)->first();
+
+        if (!$professor) {
+            // Retorne um erro ou uma mensagem informando que o professor não existe
+            echo "<script>console.log('Email professor recebido: " . json_encode($emailProfessor) . "')</script>";
+            echo "<script>console.log('Email aluno recebido: " . json_encode($emailAluno) . "')</script>";
+
+        }
+
+        $aluno = Aluno::where('email_aluno', $emailAluno)->first();
+
+        if ($aluno) {
+            $aluno->email_orientador = $emailProfessor;
+            $aluno->save();
+        } else {
+            // Retorne uma mensagem caso o aluno não seja encontrado
+            return response()->json(['error' => 'Aluno não encontrado.'], 404);
+        }
+
+        return $this->pegarInformacoesAdmin();
+    }
+
+    public function alterarEtapa($etapa,$emailAluno)
     {
         $aluno = Aluno::where('email_aluno',$emailAluno)->first();
 
         if($aluno){
-            $aluno->email_orientador = $emailProfessor;
+            $aluno->etapa = $etapa;
             $aluno->save();
         }
 
-        return $this->pegarAlunosAtivos();
+        return $this->pegarInformacoesAdmin();
     }
 
-    public function adicionarAlunos()
+ ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+    public function adicionarAlunos(Request $request, $idClassroom)
     {
-        //pegar alunos do csv
-        //chamar métodos do ClassroomController
+        $matriculas = [];
+        $nomes = [];
+        $emails = [];
+        $emailsProfessores = [];
+    
+        // Validação do arquivo CSV
+        $validator = Validator::make($request->all(), [
+            'arquivoCSV' => 'required|file|mimes:csv,txt',
+        ]);
+    
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+    
+        if ($request->hasFile('arquivoCSV')) {
+            $file = $request->file('arquivoCSV');
+            
+            #$csv = Reader::createFromPath($file->getPathname(), 'r');
+            #$csv->setHeaderOffset(0);
+            #$records = Statement::create()->process($csv);
+            $csv = Reader::createFromPath($file->getPathname(), 'r');
+            $csv->setDelimiter(',');  // Adicione esta linha para definir a vírgula como delimitador
+            #$csv->setHeaderOffset(0);
+            $records = Statement::create()->process($csv);
+
+    
+            foreach ($records as $record) {
+                $matriculas[] = $record[0] ?? null;
+                $nomes[] = $record[1] ?? null;
+                $emails[] = null;  // Preencheremos este campo após buscar os dados no Classroom
+                $emailsProfessores[] = null; // Deixe nulo para adicionar posteriormente
+            }
+    
+            // Pegar os alunos do Google Classroom
+            $classroomController = new ClassroomController;
+            $alunosClassroom = $classroomController->pegarAlunosCurso($idClassroom);
+
+            // Associar os emails dos alunos do Google Classroom com base no nome
+            foreach ($nomes as $index => $nome) {
+                foreach ($alunosClassroom as $alunoClassroom) {
+                    if (strcasecmp($nome, $alunoClassroom['name']) === 0) {
+                        $emails[$index] = $alunoClassroom['email'];
+                        break;
+                    }
+                }
+            }
+
+            //dd($alunosClassroom);
+    
+            // Preparar todos os alunos para visualização
+            $alunosParaVerificacao = [];
+            $i = 0;
+            foreach ($matriculas as $index => $matricula) {
+                $alunosParaVerificacao[] = [
+                    'matricula' => $matricula,
+                    'nome' => $nomes[$index],
+                    'email' => $emails[$i],
+                    'emailProfessor' => $emailsProfessores[$index],
+                ];
+                $i = $i + 1;
+            }
+    
+            // Redirecionar todos os alunos para a página de verificação manual
+            $usuarioController = new UsuarioController();
+            $users = $usuarioController->pegarUsuariosAtivos();
+            return view('adicionaralunosmanual', [
+                'alunosIncompletos' => $alunosParaVerificacao,
+                'idClassroom' => $idClassroom,
+                'users' => $users
+            ]);
+        }
+    
+        return redirect()->back()->with('error', 'Falha ao processar o arquivo.');
     }
+    
 
-    public function alterarBimestre($emailAluno,$bimestre)
+    
+    public function salvarDados(Request $request)
     {
-        $aluno = Aluno::where('email',$emailAluno)->first();
-
-        if($aluno){
-            $aluno->bimestre = $bimestre;
+        $matriculas = $request->input('matriculas');
+        $nomes = $request->input('nomes');
+        $emails = $request->input('emails');
+        $emailsProfessores = $request->input('emailsProfessores');
+        $idClassroom = $request->input('id_classroom');
+    
+        foreach ($matriculas as $index => $matricula) {
+            $aluno = Aluno::where('matricula', $matricula)->first();
+    
+            if (!$aluno) {
+                $aluno = new Aluno();
+                $aluno->matricula = $matricula;
+            }
+    
+            $aluno->nome = $nomes[$index];
+            $aluno->email_aluno = $emails[$index];
+            $aluno->email_orientador = $emailsProfessores[$index];
+            $aluno->id_classroom = $idClassroom;
+            $aluno->etapa = 1;
+            $aluno->ativo = true;
+            $aluno->pendente = false;
             $aluno->save();
         }
-
-        //mudar curso do classroom
-
-        return $this->pegarAlunosAtivos();
+    
+        return redirect('/admin/alunosadmin')->with('success', 'Dados dos alunos salvos com sucesso!');
     }
 
 }

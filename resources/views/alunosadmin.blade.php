@@ -12,7 +12,7 @@
     <style>
         body {
             margin-top: 20px;
-            background-color: #f8f9fa;
+            background-color: lightgray;
         }
 
         .navbar {
@@ -71,7 +71,7 @@
             align-items: center;
             justify-content: space-between;
             padding: 10px;
-            background-color: #f5f5f5;
+            background-color: #fff; /* Fundo branco */
             border: 1px solid #e1e1e1;
             margin-bottom: 10px;
             border-radius: 8px;
@@ -150,13 +150,19 @@
         }
 
         .mask-custom {
-            background: rgba(24, 24, 16, 0.2);
+            background: white;
             border-radius: 2em;
             backdrop-filter: blur(25px);
             border: 2px solid rgba(255, 255, 255, 0.05);
             background-clip: padding-box;
             box-shadow: 10px 10px 10px rgba(46, 54, 68, 0.03);
-            width: 130%;
+            width: 100%;
+        }
+
+        .button-group {
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
         }
     </style>
 </head>
@@ -174,200 +180,328 @@
         </div>
     </nav>
 
-    <section class="vh-100 gradient-custom-2">
-  <div class="container py-5 h-100">
-    <div class="row d-flex justify-content-center align-items-center h-100">
-      <div class="col-md-12 col-xl-10">
+    <section class="vh-100 gradient-custom-2 d-flex justify-content-center align-items-start">
+        <div class="container py-5">
+            <div class="button-group">
+                <button class="btn btn-primary" onclick="openAdicionarAlunosModal()">Adicionar Alunos</button>
+                <button class="btn btn-primary" onclick="openClassroomsModal()">Classrooms</button>
+                <a href="/admin/alunosdesativados" class="btn btn-secondary">Alunos Desativos</a>
+            </div>
+            <div class="row d-flex justify-content-center align-items-center">
+                <div class="col-md-12 col-xl-10">
+                    <div class="card mask-custom">
+                        <div class="card-body p-4">
 
-        <div class="card mask-custom">
-          <div class="card-body p-4 text-white">
+                            <table class="table mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th scope="col">Nome</th>
+                                        <th scope="col">Matrícula</th>
+                                        <th scope="col">Etapa</th>
+                                        <th scope="col">Email</th>
+                                        <th scope="col">Orientador</th>
+                                        <th scope="col">Status</th>
+                                        <th scope="col">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($alunos as $aluno)
+                                    <tr class="fw-normal">
+                                        <td class="align-middle">
+                                            <span>{{ $aluno->nome }}</span>
+                                        </td>
+                                        <td class="align-middle">
+                                            <span>{{ $aluno->matricula }}</span>
+                                        </td>
+                                        <td class="align-middle">
+                                            @if($aluno->etapa==1)
+                                            <span>Estágio I: Planejamento</span>
+                                            @elseif($aluno->etapa==2)
+                                            <span>Estágio I: Desenvolvimento</span>
+                                            @elseif($aluno->etapa==3)
+                                            <span>Estágio II: Desenvolvimento</span>
+                                            @elseif($aluno->etapa==4)
+                                            <span>Estágio II: Final</span>
+                                            @else
+                                            <span>ERRO</span>
+                                            @endif
+                                        </td>
+                                        <td class="align-middle">
+                                            <span>{{ $aluno->email_aluno }}</span>
+                                        </td>
+                                        <td class="align-middle">
+                                            <span>{{ $aluno->email_orientador }}</span>
+                                        </td>
+                                        <td class="align-middle">
+                                            <h6 class="mb-0"><span class="badge {{ $aluno->pendente ? 'bg-danger' : 'bg-success' }}">{{ $aluno->pendente ? 'Pendente' : 'Normal' }}</span></h6>
+                                        </td>
+                                        <td class="align-middle">
+                                            <button class="btn btn-primary mb-1 alterar-bimestre" data-email="{{ $aluno->email_aluno }}">Alterar Etapa</button>
+                                            <button class="btn btn-primary mb-1 alterar-professor" data-email="{{ $aluno->email_aluno }}">Alterar Professor</button>
+                                            <button class="btn btn-danger mb-1 desativar-aluno" data-email="{{ $aluno->email_aluno }}">Desativar</button>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
 
-            <table class="table text-white mb-0">
-              <thead>
-                <tr>
-                  <th scope="col">Nome</th>
-                  <th scope="col">Matrícula</th>
-                  <th scope="col">Bimestre</th>
-                  <th scope="col">Email</th>
-                  <th scope="col">Status</th>
-                  <th scope="col">Ações</th>
-                </tr>
-              </thead>
-              <tbody>
-                @foreach($alunos as $aluno)
-                <tr class="fw-normal">
-                  <th>
-                    <img src="{{ $aluno['avatar'] }}" alt="" style="width: 45px; height: auto;">
-                    <span class="ms-2">{{ $aluno->nome }}</span>
-                  </th>
-                  <td class="align-middle">
-                    <span>{{ $aluno->matricula }}</span>
-                  </td>
-                  <td class="align-middle">
-                    <span>{{ $aluno->bimestre }}</span>
-                  </td>
-                  <td class="align-middle">
-                    <span>{{ $aluno->email_aluno }}</span>
-                  </td>
-                  <td class="align-middle">
-                    <h6 class="mb-0"><span class="badge {{ $aluno->ativo ? 'bg-success' : 'bg-danger' }}">{{ $aluno->ativo ? 'Normal' : 'Pendente' }}</span></h6>
-                  </td>
-                  <td class="align-middle">
-                    <a href="#" class="btn btn-primary mb-1" onclick="openBimestreModal('{{ $aluno['id'] }}', '{{ $aluno['etapa'] }}')">Alterar Bimestre</a>
-                    <a href="#" class="btn btn-primary mb-1" onclick="openProfessorModal('{{ $aluno['id'] }}')">Alterar Professor</a>
-                    <a href="/admin/alunosadmin/desativar/{{ $aluno['email'] }}" class="btn btn-danger mb-1">Desativar</a>
-                  </td>
-                </tr>
-                @endforeach
-              </tbody>
-            </table>
-
-          </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
+    </section>
 
-      </div>
-    </div>
-  </div>
-</section>
-
-
-                <!-- Modal para Adicionar Alunos -->
-                <div class="modal fade" id="adicionarAlunosModal" tabindex="-1" aria-labelledby="adicionarAlunosModalLabel" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="adicionarAlunosModalLabel">Adicionar Alunos</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <form id="adicionarAlunosForm" action="/admin/alunosadmin/adicionar" method="POST" enctype="multipart/form-data">
-                                    @csrf
-                                    <div class="dropzone" id="dropzone">
-                                        <p>Arraste e solte o arquivo CSV aqui ou</p>
-                                        <input type="file" id="fileInput" name="csv_file" accept=".csv" required>
-                                        <button type="button" class="btn btn-primary mt-2" onclick="document.getElementById('fileInput').click()">Selecionar Arquivo</button>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="courseSelect" class="form-label">Selecionar Curso</label>
-                                        <select class="form-select" id="courseSelect" name="course_id" required>
-                                            <option value="1">Opcao 1</option>
-                                            <option value="2">Opcao 2</option>
-                                        </select>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-                                        <button type="submit" class="btn btn-primary" id="continueBtn" disabled>Continuar</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
+    <!-- Modal para Adicionar Alunos -->
+    <div class="modal fade" id="adicionarAlunosModal" tabindex="-1" aria-labelledby="adicionarAlunosModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="adicionarAlunosModalLabel">Adicionar Alunos</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-
-                <!-- Modal para Alterar Bimestre -->
-                <div class="modal fade" id="bimestreModal" tabindex="-1" aria-labelledby="bimestreModalLabel" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="bimestreModalLabel">Alterar Bimestre</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <form action="/admin/alunosadmin/alterarbimestre" method="POST">
-                                    @csrf
-                                    <input type="hidden" id="bimestreAlunoId" name="aluno_id" value="">
-                                    <div class="mb-3">
-                                        <label for="bimestreSelect" class="form-label">Selecionar Etapa</label>
-                                        <select class="form-select" id="bimestreSelect" name="bimestre">
-                                            <option value="1">Estágio I: Planejamento</option>
-                                            <option value="2">Estágio I: Desenvolvimento</option>
-                                            <option value="3">Estágio II: Desenvolvimento</option>
-                                            <option value="4">Estágio II: Final</option>
-                                        </select>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-                                        <button type="submit" class="btn btn-primary">Salvar mudanças</button>
-                                    </div>
-                                </form>
-                            </div>
+                <div class="modal-body">
+                    <form id="adicionarAlunosForm" action="/admin/adicionar-alunos" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        <div class="dropzone" onclick="document.getElementById('arquivoCSV').click()">
+                            <input type="file" id="arquivoCSV" name="arquivoCSV" accept=".csv">
+                            <p>Arraste e solte o arquivo CSV aqui ou clique para selecionar.</p>
                         </div>
-                    </div>
+                        <select class="form-select" id="idClassroom" name="classroom_user" required>
+                            <p>Escolha um curso para coleta dos dados do classroom</p>
+                            @foreach($classroomBanco as $classBD)
+                            <option value="{{$classBD->id_classroom}}">{{$classBD->nome}}</option>
+                            @endforeach
+                        </select>
+                    </form>
                 </div>
-
-                <!-- Modal para Alterar Professor -->
-                <div class="modal fade" id="professorModal" tabindex="-1" aria-labelledby="professorModalLabel" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="professorModalLabel">Alterar Professor</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <form action="/admin/alunosadmin/alterarprofessor" method="POST">
-                                    @csrf
-                                    <input type="hidden" id="professorAlunoId" name="aluno_id" value="">
-                                    <div class="mb-3">
-                                        <label for="professorSelect" class="form-label">Selecionar Professor</label>
-                                        <select class="form-select" id="professorSelect" name="professor_id">
-                                            @foreach($users as $user)
-                                            <option value="{{ $user->id }}">{{ $user->name }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-                                        <button type="submit" class="btn btn-primary">Salvar mudanças</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                    <button type="submit" class="btn btn-primary" onclick="submitAdicionarAlunos()">Salvar</button>
                 </div>
-
             </div>
         </div>
     </div>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"></script>
+    <!-- Modal para Classroom -->
+    <div class="modal fade" id="classroomModal" tabindex="-1" aria-labelledby="classroomModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="classroomModalLabel">Classrooms</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="classroomForm" action="" method="POST">
+                        @csrf
+                        <input type="hidden" id="adicionarClassroom" name="email_aluno">
+                        <div class="form-group">
+                            <h3>Cursos que estão no Classroom</h3>
+                            <select class="form-select" id="classroomUser" name="classroom_user" required>
+                            @foreach($classroomUser as $class)
+                                <option value='{"class_id":"{{$class["id"]}}","class_ownerId":"{{$class["ownerId"]}}","class_nome":"{{$class["nome"]}}"}'>{{$class["nome"]}}</option>
+                            @endforeach
+                            </select>
+                        </div>
+                    </form>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary" onclick="submitCadastrarClassroom()">Cadastrar</button>
+                    </div>
+                </div>
+                <hr>
+                <div class="modal-body">
+                    <h2>Cursos cadastrados no sistema</h2>
+                        @foreach($classroomBanco as $classBD)
+                        {{$classBD->nome}}
+                        @endforeach
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <!-- Scripts para abertura dos modais -->
+    <!-- Modal para Alterar Etapa -->
+    <div class="modal fade" id="alterarEtapaModal" tabindex="-1" aria-labelledby="alterarEtapaModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="alterarEtapaModalLabel">Alterar Etapa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="alterarEtapaForm" action="" method="POST">
+                        @csrf
+                        <input type="hidden" id="alterarEtapaEmail" name="email_aluno">
+                        <div class="form-group">
+                            <label for="novaEtapa">Nova Etapa</label>
+                            <select class="form-select" id="novaEtapa" name="nova_etapa" required>
+                                <option value="1">Estágio I: Planejamento</option>
+                                <option value="2">Estágio I: Desenvolvimento</option>
+                                <option value="3">Estágio II: Desenvolvimento</option>
+                                <option value="4">Estágio II: Final</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" onclick="submitAlterarEtapa()">Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Alterar Professor -->
+    <div class="modal fade" id="alterarProfessorModal" tabindex="-1" aria-labelledby="alterarProfessorModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="alterarProfessorModalLabel">Alterar Professor</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="alterarProfessorForm" action="" method="POST">
+                        @csrf
+                        <input type="hidden" id="alterarProfessorEmail" name="email_aluno">
+                        <div class="form-group">
+                            <label for="novoProfessor">Novo Professor</label>
+                            <select class="form-select" id="novoProfessor" name="novo_professor" required>
+                                @foreach($users as $user)
+                                <option value="{{ $user->email }}">{{ $user->email }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" onclick="submitAlterarProfessor()">Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Desativar Aluno -->
+    <div class="modal fade" id="desativarAlunoModal" tabindex="-1" aria-labelledby="desativarAlunoModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="desativarAlunoModalLabel">Desativar Aluno</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Tem certeza de que deseja desativar este aluno?</p>
+                    <form id="desativarAlunoForm" action="" method="POST">
+                        @csrf
+                        <input type="hidden" id="desativarAlunoEmail" name="email_aluno">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-danger" onclick="submitDesativarAluno()">Desativar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+
     <script>
-        function openBimestreModal(alunoId, etapaAtual) {
-            document.getElementById('bimestreAlunoId').value = alunoId;
-            document.getElementById('bimestreSelect').value = etapaAtual;
-            var myModal = new bootstrap.Modal(document.getElementById('bimestreModal'));
-            myModal.show();
+        // Função para abrir o modal de adicionar alunos
+        function openAdicionarAlunosModal() {
+            var adicionarAlunosModal = new bootstrap.Modal(document.getElementById('adicionarAlunosModal'));
+            adicionarAlunosModal.show();
         }
 
-        function openProfessorModal(alunoId) {
-            document.getElementById('professorAlunoId').value = alunoId;
-            var myModal = new bootstrap.Modal(document.getElementById('professorModal'));
-            myModal.show();
+        function openClassroomsModal() {
+            var classroomModal = new bootstrap.Modal(document.getElementById('classroomModal'));
+            classroomModal.show();
         }
 
-        document.getElementById('fileInput').addEventListener('change', validateFileAndCourse);
-        document.getElementById('courseSelect').addEventListener('change', validateFileAndCourse);
+        // Evento para capturar o clique do botão "Alterar Etapa"
+        document.querySelectorAll('.alterar-bimestre').forEach(button => {
+            button.addEventListener('click', function() {
+                const email = this.dataset.email;
+                document.getElementById('alterarEtapaEmail').value = email;
 
-        function validateFileAndCourse() {
-            const fileInput = document.getElementById('fileInput');
-            const courseSelect = document.getElementById('courseSelect');
-            const continueBtn = document.getElementById('continueBtn');
+                var alterarEtapaModal = new bootstrap.Modal(document.getElementById('alterarEtapaModal'));
+                alterarEtapaModal.show();
+            });
+        });
 
-            if (fileInput.files.length > 0 && courseSelect.value) {
-                continueBtn.disabled = false;
+        // Evento para capturar o clique do botão "Alterar Professor"
+        document.querySelectorAll('.alterar-professor').forEach(button => {
+            button.addEventListener('click', function() {
+                const email = this.dataset.email;
+                document.getElementById('alterarProfessorEmail').value = email;
+
+                var alterarProfessorModal = new bootstrap.Modal(document.getElementById('alterarProfessorModal'));
+                alterarProfessorModal.show();
+            });
+        });
+
+        // Evento para capturar o clique do botão "Desativar Aluno"
+        document.querySelectorAll('.desativar-aluno').forEach(button => {
+            button.addEventListener('click', function() {
+                const email = this.dataset.email;
+                document.getElementById('desativarAlunoEmail').value = email;
+
+                var desativarAlunoModal = new bootstrap.Modal(document.getElementById('desativarAlunoModal'));
+                desativarAlunoModal.show();
+            });
+        });
+
+        // Função para submeter o formulário de alterar etapa com a rota correta
+        function submitAlterarEtapa() {
+            const email = document.getElementById('alterarEtapaEmail').value;
+            const etapa = document.getElementById('novaEtapa').value;
+            const form = document.getElementById('alterarEtapaForm');
+            form.action = `/admin/alunosadmin/alterarbimestre/${etapa}/aluno/${email}`;
+            form.submit();
+        }
+
+        // Função para submeter o formulário de alterar professor com a rota correta
+        function submitAlterarProfessor() {
+            const alunoEmail = document.getElementById('alterarProfessorEmail').value;
+            const professorEmail = document.getElementById('novoProfessor').value;
+            const form = document.getElementById('alterarProfessorForm');
+            form.action = `/admin/alunosadmin/alterarprofessor/${professorEmail}/aluno/${alunoEmail}`;
+            form.submit();
+        }
+
+        // Função para submeter o formulário de desativar aluno com a rota correta
+        function submitDesativarAluno() {
+            const email = document.getElementById('desativarAlunoEmail').value;
+            const form = document.getElementById('desativarAlunoForm');
+            form.action = `/admin/alunosadmin/desativar/${email}`;
+            form.submit();
+        }
+
+        function submitCadastrarClassroom() {
+            const selectedClass = document.getElementById('classroomUser').value;
+            
+            const classInfo = JSON.parse(selectedClass);
+
+            const form = document.getElementById('classroomForm');
+            form.action = `/admin/alunosadmin/cadastrarcurso/${classInfo.class_id}/owner/${classInfo.class_ownerId}/nome/${classInfo.class_nome}`;
+            form.submit();
+        }
+
+        function submitAdicionarAlunos() {
+            const arquivoCSV = document.getElementById('arquivoCSV').files[0];
+            const idClassroom = document.getElementById('idClassroom').value;
+
+            const form = document.getElementById('adicionarAlunosForm');
+            form.action = `/admin/alunosadmin/adicionaralunos/classroom/${idClassroom}`;
+
+            if (arquivoCSV && idClassroom) {
+                form.submit();
             } else {
-                continueBtn.disabled = true;
+                alert('Por favor, selecione um arquivo CSV e um curso.');
             }
         }
 
-        function openAdicionarAlunosModal() {
-            var myModal = new bootstrap.Modal(document.getElementById('adicionarAlunosModal'));
-            myModal.show();
-        }
-    </script>
 
+    </script>
 </body>
 </html>

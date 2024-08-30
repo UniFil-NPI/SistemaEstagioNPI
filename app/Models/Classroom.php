@@ -22,8 +22,7 @@ class Classroom extends Model
     protected $fillable = [
         'id_classroom',
         'id_dono',
-        'descricao',
-        'secao',
-        'email_aluno',
+        'nome',
+        'ativo',
     ];
 }

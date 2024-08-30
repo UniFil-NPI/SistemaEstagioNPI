@@ -142,17 +142,17 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach($users as $users)
+                                    @foreach($users as $user)
                                         <tr>
                                             <td class="text-center">
-                                                {{$users->nome }}
+                                                {{$user->nome }}
                                             </td>
                                             <td class="text-center">
-                                                {{ $users->email }}
+                                                {{ $user->email }}
                                             </td>
                                             <td class="text-center">
                                                 <span class="label label-default">
-                                                    <a href="#" class="btn btn-sm btn-primary">Reativar</a>
+                                                    <a href="/admin/professoresadmin/reativar/{{$user->email}}" class="btn btn-sm btn-primary">Reativar</a>
                                                 </span>
                                             </td>
                                         </tr>

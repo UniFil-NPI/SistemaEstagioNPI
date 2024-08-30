@@ -4,9 +4,13 @@ namespace App\Http\Controllers;
 use App\Models\Classroom;
 use Google\Client;
 use Google\Service\Classroom as GoogleClassroom;
+use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;    
+use Illuminate\Support\Facades\Cookie;
 
-class GoogleClassroomController extends Controller
+
+class ClassroomController extends Controller
 {
     protected $client;
     protected $service;
@@ -14,56 +18,108 @@ class GoogleClassroomController extends Controller
     public function __construct()
     {
         $this->client = new Client();
-        $this->client->setApplicationName('Laravel Google Classroom API');
-        $this->client->setScopes([
-            GoogleClassroom::CLASSROOM_COURSES_READONLY, 
-            GoogleClassroom::CLASSROOM_ROSTERS_READONLY, 
-            GoogleClassroom::CLASSROOM_COURSEWORK_ME_READONLY
-        ]);
-        $this->client->setAuthConfig(storage_path('app/google/credentials.json'));
-        $this->client->setAccessType('offline');
+        #$this->client->setApplicationName('Sistema de Estágio');    
+        #$this->client->setScopes([
+            #GoogleClassroom::CLASSROOM_COURSES_READONLY, 
+            #GoogleClassroom::CLASSROOM_ROSTERS_READONLY, 
+            #GoogleClassroom::CLASSROOM_COURSEWORK_ME_READONLY
+        #]);
+        #$this->client->setAccessType('offline');
 
-        $this->service = new GoogleClassroom($this->client);
     }
 
-    public function adicionarCursoBanco($id_curso)
+    public function listarCursosUserAutenticado()
+
     {
-        $course = $this->service->courses->get($id_curso);
+        $token = Cookie::get('google_login_token');
+        $refreshToken = Cookie::get('google_login_refresh_token');
+
+        $this->client->setAccessToken($token);
+
+        if ($this->client->isAccessTokenExpired()) {
+            $newToken = $this->client->fetchAccessTokenWithRefreshToken($refreshToken);
+
+            if (isset($newToken[1])) {
+                $expiresIn = 60;
+                #Cookie::queue(Cookie::make('google_login_token', $newToken, $expiresIn , null, null, true, true));
+                $this->client->setAccessToken($newToken[1]);
+            } else {
+                echo "<script>console.log('cant renew token')</script>";
+            }
+        }    
+
+        $this->service = new GoogleClassroom($this->client);
+
+        $courses = $this->service->courses->listCourses();
+
+        return $courses;
+    }
+
+    public function pegarClassrooms()
+    {
+        $classrooms = Classroom::all();
+
+        return $classrooms;
+    }
+
+    public function adicionarCursoBanco($id_curso,$id_dono,$nome)
+    {
 
         Classroom::create([
-            'id_classroom' => $course->id,
-            'id_dono' => $course->ownerId,
-            'descricao' => $course->description,
-            'secao' => $course->section,
-            // Não precisa incluir 'email_aluno' aqui, pois isso será tratado separadamente
+            'id_classroom' => $id_curso,
+            'id_dono' => $id_dono,
+            'nome' => $nome,
+            'ativo' => TRUE,
         ]);
 
-        return response()->json(['message' => 'Curso adicionado com sucesso'], 200);
+        return redirect('/admin/alunosadmin');
     }
 
     public function pegarAlunosCurso($id_curso)
     {
+        $token = Cookie::get('google_login_token');
+        $refreshToken = Cookie::get('google_login_refresh_token');
+
+        $this->client->setAccessToken($token);
+
+        if ($this->client->isAccessTokenExpired()) {
+            $newToken = $this->client->fetchAccessTokenWithRefreshToken($refreshToken);
+
+            if (isset($newToken['access_token'])) {
+                $expiresIn = 60;
+                #Cookie::queue(Cookie::make('google_login_token', $newToken['access_token'], $expiresIn, null, null, true, true));
+                $this->client->setAccessToken($newToken['access_token']);
+            } else {
+                echo "<script>console.log('cannot renew token')</script>";
+            }
+        }
+
+        $this->service = new GoogleClassroom($this->client);
+
         $students = $this->service->courses_students->listCoursesStudents($id_curso);
         $studentData = [];
 
         foreach ($students->getStudents() as $student) {
-            $studentData[] = [
-                'name' => $student->profile->name->fullName,
-                'email' => $student->profile->emailAddress,
-            ];
+            $profile = $student->getProfile();
 
-            // Armazena cada aluno na tabela 'classroom'
-            Classroom::updateOrCreate(
-                ['id_classroom' => $id_curso, 'email_aluno' => $student->profile->emailAddress],
-                ['secao' => $student->courseSection] // Exemplo de campo adicional, se necessário
-            );
+            #dd($profile);
+
+            $studentData[] = [
+                'name' => $profile->getName()->getFullName(),
+                'email' => $profile->getEmailAddress() ?? 'Email não disponível', // Se o email for nulo, usar uma string padrão
+            ];
         }
 
-        return response()->json($studentData, 200);
+        return $studentData;
     }
+
 
     public function pegarAtividadesAluno($email_aluno)
     {
+        $user = Auth::user();
+        $this->client->setAccessToken($user->token);
+        $this->service = new GoogleClassroom($this->client);
+
         $assignments = [];
         $courses = $this->service->courses->listCourses();
 

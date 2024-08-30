@@ -12,7 +12,13 @@ class UsuarioController extends Controller
     {
         $users = Users::where('ativo', true)->get();
 
-        return view('professoresadmin', compact('users'));
+        return $users;
+    }
+
+    public function pegarUsuariosAtivosView()
+    {
+        $users = Users::where('ativo', true)->get();
+        return view('professoresadmin',compact('users'));
     }
 
     public function pegarUsuariosDesativos()
@@ -24,6 +30,12 @@ class UsuarioController extends Controller
 
     public function desativar($email)
     {
+        $desativoCount = Users::where('ativo', true)->count();
+
+        if ($desativoCount <= 1) {
+            return redirect('/admin/professoresadmin')->with('alert', 'Não foi possível desativar o usuário. Deve haver pelo menos um usuário ativo.');
+        }
+        
         $user = Users::where('email', $email)->first();
 
         if ($user) {
@@ -31,7 +43,7 @@ class UsuarioController extends Controller
             $user->save();  
         }
 
-        return pegarUsuariosAtivos();
+        return $this->pegarUsuariosAtivosView();
     }
 
     public function reativar($email)
@@ -43,7 +55,7 @@ class UsuarioController extends Controller
             $user->save();  
         }
 
-        return pegarUsuariosDesativos();
+        return $this->pegarUsuariosDesativos();
     }
 
     public function darPrivilegiosAdmin($email)
@@ -55,20 +67,27 @@ class UsuarioController extends Controller
             $user->save();  
         }
 
-        return pegarUsuariosAtivos();
+        return $this->pegarUsuariosAtivosView();
     }
 
     public function tirarPrivilegiosAdmin($email)
-    {
-        $user = Users::where('email', $email)->first();
+{
+    $adminCount = Users::where('isadmin', true)->count();
 
-        if ($user) {
-            $user->isadmin = false;
-            $user->save();  
-        }
-
-        return pegarUsuariosAtivos();
+    if ($adminCount <= 1) {
+        return redirect('/admin/professoresadmin')->with('alert', 'Não foi possível remover os privilégios de administrador. Deve haver pelo menos um administrador.');
     }
+
+    $user = Users::where('email', $email)->first();
+
+    if ($user) {
+        $user->isadmin = false;
+        $user->save();  
+    }
+
+    return $this->pegarUsuariosAtivosView();
+}
+
     
     public function controlarAlunos($email)
     {

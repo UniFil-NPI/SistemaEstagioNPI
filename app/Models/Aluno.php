@@ -23,9 +23,11 @@ class Aluno extends Model
         'email_aluno',
         'nome',
         'matricula',
-        'bimestre',
+        'etapa',
         'ativo',
+        'pendente',
         'email_orientador',
+        'id_classroom',
     ];
 
     function orientador(){

@@ -155,10 +155,10 @@
                                                 {{ $aluno->matricula }}
                                             </td>
                                             <td class="text-center">
-                                                @if ($aluno->ativo)
-                                                <span class="label label-default">Realizando estágio</span>
+                                                @if ($aluno->pendente)
+                                                <span class="label label-default">Pendente</span>
                                                 @else
-                                                <span class="label label-default">Desligado do estágio</span>
+                                                <span class="label label-default">Normal</span>
                                                 @endif
                                             </td>
                                             <td>
