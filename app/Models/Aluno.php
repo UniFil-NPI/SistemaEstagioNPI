@@ -27,11 +27,15 @@ class Aluno extends Model
         'ativo',
         'pendente',
         'email_orientador',
-        'id_classroom',
     ];
 
-    function orientador(){
-        return $this->belongsTo(Users::class,'email_orientador','email_aluno');
+    public function classrooms()
+    {
+        return $this->belongsToMany(Classroom::class, 'aluno_classroom', 'email_aluno', 'id_classroom');
     }
 
+    public function orientador()
+    {
+        return $this->belongsTo(Users::class, 'email_orientador', 'email_aluno');
+    }
 }

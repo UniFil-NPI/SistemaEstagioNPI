@@ -25,4 +25,15 @@ class Classroom extends Model
         'nome',
         'ativo',
     ];
+
+    public function alunos()
+    {
+        return $this->belongsToMany(Aluno::class, 'aluno_classroom', 'id_classroom', 'email_aluno');
+    }
+
+    public function atividades()
+    {
+        return $this->hasMany(Atividade::class, 'id_classroom', 'id_classroom');
+    }
+
 }

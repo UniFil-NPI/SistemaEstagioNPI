@@ -167,7 +167,7 @@
                                             </td>
                                             <td class="text-end">
                                                 <span class="label label-default">
-                                                    <a href="#" class="btn btn-sm btn-primary">Controlar Alunos</a>
+                                                    <!--<a href="#" class="btn btn-sm btn-primary">Controlar Alunos</a>-->
                                                     @if($user->isadmin == TRUE)
                                                     <a href="/admin/professoresadmin/tirarprivilegios/{{$user->email}}" class="btn btn-sm btn-success">Tirar Privilégios</a>
                                                     @else

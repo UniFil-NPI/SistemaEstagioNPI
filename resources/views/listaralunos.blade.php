@@ -166,9 +166,9 @@
                                             </td>
                                             <td class="text-end">
                                                 <span class="label label-default">
-                                                    <a href="#" class="btn btn-sm btn-primary">Entregas</a>
-                                                    <a href="#" class="btn btn-sm btn-secondary">RPODS</a>
-                                                    <a href="#" class="btn btn-sm btn-success">Orientações</a>
+                                                    <a href="/atividades/{{$aluno->email_aluno}}/etapa/{{$aluno->etapa}}" class="btn btn-sm btn-primary">Atividades</a>
+                                                    <a href="/rpods/{{$aluno->email_aluno}}/etapa/{{$aluno->etapa}}" class="btn btn-sm btn-secondary">RPODS</a>
+                                                    <a href="/orientacoes/{{$aluno->email_aluno}}/etapa/{{$aluno->etapa}}" class="btn btn-sm btn-success">Orientações</a>
                                                 </span>
                                             </td>
                                         </tr>

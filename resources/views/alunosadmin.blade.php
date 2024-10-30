@@ -185,8 +185,38 @@
             <div class="button-group">
                 <button class="btn btn-primary" onclick="openAdicionarAlunosModal()">Adicionar Alunos</button>
                 <button class="btn btn-primary" onclick="openClassroomsModal()">Classrooms</button>
+                <button class="btn btn-primary" onclick="openFinalizarEtapaModal()">Finalizar Etapa</button>
                 <a href="/admin/alunosdesativados" class="btn btn-secondary">Alunos Desativos</a>
             </div>
+            
+            <div class="container mb-4">
+                <div class="row">
+                    <div class="col-md-3">
+                        <input type="text" id="searchName" class="form-control" placeholder="Pesquisar por Nome">
+                    </div>
+                    <div class="col-md-3">
+                        <select id="filterEtapa" class="form-select">
+                            <option value="">Filtrar por Etapa</option>
+                            <option value="Estágio I: Planejamento">Estágio I: Planejamento</option>
+                            <option value="Estágio I: Desenvolvimento">Estágio I: Desenvolvimento</option>
+                            <option value="Estágio II: Desenvolvimento">Estágio II: Desenvolvimento</option>
+                            <option value="Estágio II: Final">Estágio II: Final</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select id="filterStatus" class="form-select">
+                            <option value="">Filtrar por Status</option>
+                            <option value="0">Normal</option>
+                            <option value="1">Pendente</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="text" id="filterOrientador" class="form-control" placeholder="Filtrar por Orientador">
+                    </div>
+                </div>
+            </div>
+
+
             <div class="row d-flex justify-content-center align-items-center">
                 <div class="col-md-12 col-xl-10">
                     <div class="card mask-custom">
@@ -238,6 +268,7 @@
                                         <td class="align-middle">
                                             <button class="btn btn-primary mb-1 alterar-bimestre" data-email="{{ $aluno->email_aluno }}">Alterar Etapa</button>
                                             <button class="btn btn-primary mb-1 alterar-professor" data-email="{{ $aluno->email_aluno }}">Alterar Professor</button>
+                                            <button class="btn btn-danger mb-1 alterar-status" data-email="{{ $aluno->email_aluno }}">Alterar status</button>
                                             <button class="btn btn-danger mb-1 desativar-aluno" data-email="{{ $aluno->email_aluno }}">Desativar</button>
                                         </td>
                                     </tr>
@@ -404,6 +435,50 @@
         </div>
     </div>
 
+
+    <!-- Modal para Alterar Status -->
+    <div class="modal fade" id="alterarStatusModal" tabindex="-1" aria-labelledby="alterarStatusModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="alterarStatusModalLabel">Altear Status Aluno</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Tem certeza de que deseja alterar o status do aluno?</p>
+                    <form id="alterarStatusForm" action="" method="POST">
+                        @csrf
+                        <input type="hidden" id="alterarStatusEmail" name="email_aluno">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-danger" onclick="submitAlterarStatus()">Alterar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Modal para Finalizar Etapa -->
+    <div class="modal fade" id="finalizarEtapaModal" tabindex="-1" aria-labelledby="finalizarEtapaModalLabel" aria-hidden="true">
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <label for="etapa" class="form-label">Selecionar Etapa</label>
+                <select class="form-select" id="etapa" name="etapa">
+                    <option value="1">Estágio I: Planejamento</option>
+                    <option value="2">Estágio I: Desenvolvimento</option>
+                    <option value="3">Estágio II: Desenvolvimento</option>
+                    <option value="4">Estágio II: Final</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-danger" onclick="submitFinalizarEtapa()">Finalizar Etapa</button>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
@@ -416,6 +491,11 @@
         function openClassroomsModal() {
             var classroomModal = new bootstrap.Modal(document.getElementById('classroomModal'));
             classroomModal.show();
+        }
+
+        function openFinalizarEtapaModal() {
+            var etapaModal = new bootstrap.Modal(document.getElementById('finalizarEtapaModal'));
+            etapaMdaa.show();
         }
 
         // Evento para capturar o clique do botão "Alterar Etapa"
@@ -437,6 +517,17 @@
 
                 var alterarProfessorModal = new bootstrap.Modal(document.getElementById('alterarProfessorModal'));
                 alterarProfessorModal.show();
+            });
+        });
+
+
+        document.querySelectorAll('.alterar-status').forEach(button => {
+            button.addEventListener('click', function() {
+                const email = this.dataset.email;
+                document.getElementById('alterarStatusEmail').value = email;
+
+                var alterarStatusModal = new bootstrap.Modal(document.getElementById('alterarStatusModal'));
+                alterarStatusModal.show();
             });
         });
 
@@ -477,6 +568,13 @@
             form.submit();
         }
 
+        function submitAlterarStatus() {
+            const email = document.getElementById('alterarStatusEmail').value;
+            const form = document.getElementById('alterarStatusForm');
+            form.action = `/admin/alunosadmin/alterarstatus/${email}`;
+            form.submit();
+        }
+
         function submitCadastrarClassroom() {
             const selectedClass = document.getElementById('classroomUser').value;
             
@@ -500,8 +598,44 @@
                 alert('Por favor, selecione um arquivo CSV e um curso.');
             }
         }
-
-
     </script>
+
+    <script>
+        // Escutando mudanças nos campos de filtro
+        document.getElementById('searchName').addEventListener('input', filterTable);
+        document.getElementById('filterEtapa').addEventListener('change', filterTable);
+        document.getElementById('filterStatus').addEventListener('change', filterTable);
+        document.getElementById('filterOrientador').addEventListener('input', filterTable);
+
+        function filterTable() {
+            const searchName = document.getElementById('searchName').value.toLowerCase();
+            const filterEtapa = document.getElementById('filterEtapa').value;
+            const filterStatus = document.getElementById('filterStatus').value;
+            const filterOrientador = document.getElementById('filterOrientador').value.toLowerCase();
+
+            const rows = document.querySelectorAll('tbody tr');
+
+            rows.forEach(row => {
+                const nome = row.querySelector('td:nth-child(1)').innerText.toLowerCase();
+                const etapa = row.querySelector('td:nth-child(3)').innerText;
+                const status = row.querySelector('td:nth-child(6) .badge').classList.contains('bg-danger') ? '1' : '0';
+                const orientador = row.querySelector('td:nth-child(5)').innerText.toLowerCase();
+
+                const matchesName = nome.includes(searchName);
+                const matchesEtapa = filterEtapa === "" || etapa.includes(`${filterEtapa}`);
+                const matchesStatus = filterStatus === "" || status === filterStatus;
+                const matchesOrientador = orientador.includes(filterOrientador);
+
+                // Mostrar ou ocultar a linha com base nos filtros
+                if (matchesName && matchesEtapa && matchesStatus && matchesOrientador) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+    </script>
+
+
 </body>
 </html>

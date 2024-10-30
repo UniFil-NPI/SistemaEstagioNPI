@@ -89,8 +89,4 @@ class UsuarioController extends Controller
 }
 
     
-    public function controlarAlunos($email)
-    {
-        return 0;
-    }
 }
