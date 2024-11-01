@@ -26,9 +26,13 @@ Route::middleware('auth')->get('/admin', function () {
 });
 
 
+Route::middleware('auth')->post(
+    '/admin/alunosadmin/passaretapamanual/finalizar',
+    [AlunoController::class, 'finalizarEtapa']);
 
-Route::middleware('auth')->get(
-    '/admin/alunosadmin/passaretapamanual',
+
+Route::middleware('auth')->post(
+    '/admin/alunosadmin/passaretapamanual/{etapa}/novoclassroom/{id_classroom}',
     [AlunoController::class, 'avaliarAprovacao']);
 
 
@@ -38,7 +42,7 @@ Route::middleware('auth')->get(
     [AtividadesController::class, 'pegarClassroomsAtividadesAluno']);
 
 Route::middleware('auth')->post(
-    '/atividades/{id_classroom}/salvarnotas', 
+    '/atividades/{id_classroom}/email/{email_aluno}/salvarnotas', 
     [AtividadesController::class, 'salvarNotas']);
 
 Route::middleware('auth')->get(

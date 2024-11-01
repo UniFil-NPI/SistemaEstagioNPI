@@ -25,16 +25,22 @@ class Atividade extends Model
 
     protected $fillable = [
         'id_atividade',
+        'id_api',
         'data_criacao',
         'data_entrega',
         'nota',
         'entregue',
         'titulo',
         'id_classroom',
+        'email_aluno',
     ];
 
     public function classroom()
     {
         return $this->belongsTo(Classroom::class, 'id_classroom', 'id_classroom');
+    }
+    public function aluno()
+    {
+        return $this->belongsTo(Aluno::class, 'email_aluno', 'email_aluno');
     }
 }

@@ -223,6 +223,102 @@ class AlunoController extends Controller
         return redirect()->back()->with('success', 'Aluno reativado com sucesso!');
     }
 
+
+    public function avaliarAprovacao($etapa, $novoClassroomID = null)
+    {
+        $alunos = Aluno::where('aluno.etapa', $etapa)->get(); // Também referenciando corretamente 'etapa'
+
+
+        $atividadesController = new AtividadesController();
+        $orientacoesController = new OrientacoesController();
+        $classroomController = new ClassroomController();
+
+
+        $alunosAvaliados = [];
+
+        foreach ($alunos as $aluno) {
+            $classroomAtual = $aluno->classrooms()->wherePivot('atual', true)->first();
+
+            if ($classroomAtual) {
+                $id_classroom = $classroomAtual->id_classroom;
+            }
+
+            $mediaFinal = $atividadesController->calcularNotaFinal($id_classroom, $aluno->email_aluno);
+            $cargaHoraria = $orientacoesController->calcularCargaHoraria($aluno->email_aluno);
+
+            $aprovado = $mediaFinal >= 70 && $cargaHoraria >= 4;
+
+            $statusNovoClassroom = $novoClassroomID 
+                ? $classroomController->verificarAlunosClassroom($aluno->email_aluno, $novoClassroomID)
+                : 'N/A';
+
+            $alunosAvaliados[] = [
+                'nome' => $aluno->nome,
+                'email' => $aluno->email_aluno,
+                'media' => $mediaFinal,
+                'cargaHoraria' => $cargaHoraria,
+                'status' => $aprovado ? 'Aprovado' : 'Pendente',
+                'novoClassroom' => $statusNovoClassroom,
+            ];
+
+        }
+
+        return view('passaretapamanual', compact('alunosAvaliados', 'etapa', 'novoClassroomID','classroomAtual'));
+    }
+
+
+    public function finalizarEtapa(Request $request)
+{
+    // Captura os dados do formulário
+    $classroomID = $request->input('classroom_id');
+    $classroomAtual = $request->input('classroom_atual');
+    $etapa = $request->input('etapa');
+    $aprovados = $request->input('aprovados', []); // Captura a lista de alunos aprovados
+
+    // Busca alunos associados ao classroom e à etapa
+    $alunos = Aluno::where('etapa', $etapa)->get();
+
+    // Debug: Output the retrieved alunos
+    \Log::info('Retrieved alunos:', ['alunos' => $alunos]);
+
+    // If no alunos found, log a message and return
+    if ($alunos->isEmpty()) {
+        \Log::warning('No alunos found for classroom ID: ' . $classroomID . ' and etapa: ' . $etapa);
+        return redirect('/admin/alunosadmin')->with('error', 'Nenhum aluno encontrado para esta turma e etapa.');
+    }
+
+    // Processa cada aluno
+    foreach ($alunos as $aluno) {
+        // Verifica se o aluno está na lista de aprovados
+        $aprovado = in_array($aluno->email_aluno, $aprovados);
+
+        if ($aprovado) {
+            // Aluno aprovado
+            if ($aluno->etapa < 4) {
+                $aluno->etapa += 1; // Aumenta a etapa
+            } else {
+                $aluno->ativo = false; // Desativa o aluno se já estiver na última etapa
+            }
+            $aluno->save(); // Salva as alterações no aluno
+        } else {
+            // Aluno reprovado
+            $aluno->pendente = true; // Marca o aluno como pendente ou reprovado
+            $aluno->save(); // Salva as alterações no aluno
+        }
+
+        if ($classroomID && $classroomID != $classroomAtual) {
+            // Chama a função mudarClassroom para mudar o classroom do aluno
+            $this->mudarClassroom($aluno, $classroomID);
+        }
+    }
+
+    return redirect('/admin/alunosadmin')->with('success', 'Avaliação finalizada com sucesso.');
+}
+
+
+
+
+
     public function mudarClassroom(Aluno $aluno, $novoClassroomId = null)
     {
         $classroomAtual = $aluno->classrooms()->wherePivot('atual', true)->first();
@@ -240,46 +336,6 @@ class AlunoController extends Controller
         $aluno->etapa += 1;
         $aluno->pendente = false;
         $aluno->save();
-    }
-
-
-    public function avaliarAprovacao($etapa, $novoClassroomID = null)
-    {
-        $classroomID = $request->input('classroom_id');
-        $alunos = Aluno::whereHas('classrooms', function ($query) use ($classroomID) {
-            $query->where('id_classroom', $classroomID);
-            $query->where('etapa', $etapa);
-        })->get();
-
-        $atividadesController = new AtividadesController();
-        $orientacoesController = new OrientacoesController();
-
-        foreach ($alunos as $aluno) {
-            $mediaFinal = $atividadesController->calcularNotaFinal($classroomID);
-            
-            $cargaHoraria = $orientacoesController->calcularCargaHoraria($aluno->email_aluno);
-
-            $aprovado = $mediaFinal >= 70 && $cargaHoraria >= 5;
-
-            if ($aprovado) {
-                if ($aluno->etapa < 4) {
-                    $aluno->etapa += 1;
-                } else {
-                    $aluno->ativo = false;
-                }
-
-                if ($novoClassroomID) {
-                    $this->mudarClassroom($aluno->email_aluno, $novoClassroomID);
-                }
-
-            } else {
-                $aluno->pendente = true;
-            }
-
-            $aluno->save();
-        }
-
-        return redirect()->back()->with('success', 'Avaliação de alunos realizada com sucesso!');
     }
 
 

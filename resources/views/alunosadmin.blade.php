@@ -462,21 +462,40 @@
 
     <!-- Modal para Finalizar Etapa -->
     <div class="modal fade" id="finalizarEtapaModal" tabindex="-1" aria-labelledby="finalizarEtapaModalLabel" aria-hidden="true">
-        <div class="row mb-4">
-            <div class="col-md-4">
-                <label for="etapa" class="form-label">Selecionar Etapa</label>
-                <select class="form-select" id="etapa" name="etapa">
-                    <option value="1">Estágio I: Planejamento</option>
-                    <option value="2">Estágio I: Desenvolvimento</option>
-                    <option value="3">Estágio II: Desenvolvimento</option>
-                    <option value="4">Estágio II: Final</option>
-                </select>
-            </div>
-            <div class="modal-footer">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="alterarEtapaModalLabel">Alterar Etapa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <label for="etapa" class="form-label">Selecionar Etapa</label>
+                            <form id="finalizarEtapaForm" action="" method="POST">
+                                @csrf
+                                <select class="form-select" id="etapa" name="etapa" required>
+                                    <option value="1">Estágio I: Planejamento</option>
+                                    <option value="2">Estágio I: Desenvolvimento</option>
+                                    <option value="3">Estágio II: Desenvolvimento</option>
+                                    <option value="4">Estágio II: Final</option>
+                                </select>
+                                <label for="classroomnovo" class="form-label">Selecionar Novo Classroom</label>
+                                <select class="form-select" id="classroomnovo" name="classroomnovo" required>
+                                    <option value="">Não mudar classroom</option>
+                                    @foreach($classroomBanco as $classBD)
+                                    <option value="{{ $classBD->id_classroom }}">{{ $classBD->nome }}</option>
+                                    @endforeach
+                                </select>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                     <button type="submit" class="btn btn-danger" onclick="submitFinalizarEtapa()">Finalizar Etapa</button>
+                </div>
             </div>
-        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -495,7 +514,7 @@
 
         function openFinalizarEtapaModal() {
             var etapaModal = new bootstrap.Modal(document.getElementById('finalizarEtapaModal'));
-            etapaMdaa.show();
+            etapaModal.show();
         }
 
         // Evento para capturar o clique do botão "Alterar Etapa"
@@ -541,6 +560,14 @@
                 desativarAlunoModal.show();
             });
         });
+
+        function submitFinalizarEtapa() {
+            const classroom = document.getElementById('classroomnovo').value;
+            const etapa = document.getElementById('etapa').value;
+            const form = document.getElementById('finalizarEtapaForm');
+            form.action = `/admin/alunosadmin/passaretapamanual/${etapa}/novoclassroom/${classroom}`;
+            form.submit();
+        }
 
         // Função para submeter o formulário de alterar etapa com a rota correta
         function submitAlterarEtapa() {
@@ -626,7 +653,6 @@
                 const matchesStatus = filterStatus === "" || status === filterStatus;
                 const matchesOrientador = orientador.includes(filterOrientador);
 
-                // Mostrar ou ocultar a linha com base nos filtros
                 if (matchesName && matchesEtapa && matchesStatus && matchesOrientador) {
                     row.style.display = '';
                 } else {

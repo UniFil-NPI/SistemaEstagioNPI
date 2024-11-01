@@ -79,7 +79,7 @@
                     @if($classroom->atividades->isEmpty())
                         <p class="text-center">Nenhuma atividade encontrada para esta sala.</p>
                     @else
-                        <form method="POST" action="/atividades/{{ $classroom->id_classroom }}/salvarnotas">
+                        <form method="POST" action="/atividades/{{ $classroom->id_classroom }}/email/{{ $email_aluno }}/salvarnotas">
                             @csrf
                             <table class="table table-bordered">
                                 <thead>

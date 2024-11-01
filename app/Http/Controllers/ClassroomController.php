@@ -170,9 +170,25 @@ class ClassroomController extends Controller
         return "Classroom ainda está ativo.";
     }
 
-    public function verificarAlunosClassroom($idClassroom)
+    public function verificarAlunosClassroom($emailAluno, $idClassroom)
     {
-        #verificar se os alunos a mudarem de classrom, estão no classroom (pela api, vendo pelo email)
+        
+        $this->client->setAccessToken(Cookie::get('google_login_token'));
+        $this->service = new GoogleClassroom($this->client);
+
+        try {
+            $students = $this->service->courses_students->listCoursesStudents($idClassroom);
+
+            foreach ($students as $student) {
+                if ($student->getProfile()->getEmailAddress() === $emailAluno) {
+                    return true;
+                }
+            }
+        } catch (\Exception $e) {
+            return 'Erro ao verificar';
+        }
+
+        return false;
     }
 
 

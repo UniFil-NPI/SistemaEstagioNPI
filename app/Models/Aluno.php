@@ -38,4 +38,6 @@ class Aluno extends Model
     {
         return $this->belongsTo(Users::class, 'email_orientador', 'email_aluno');
     }
+
+    
 }
