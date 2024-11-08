@@ -9,22 +9,30 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+
+
+
+
+
     <style>
         body {
             margin-top: 20px;
             background-color: lightgray;
         }
 
+        /* Estilo da navbar */
         .navbar {
-            background-color: #F29400; /* Laranja */
+            background-color: #F29400;
             padding: 10px 20px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            height: 65px; /* Mantém o tamanho fixo do navbar */
+            height: 65px;
         }
 
+        /* Logo centralizada */
         .navbar .logo {
             position: absolute;
             left: 50%;
@@ -41,60 +49,51 @@
 
         .navbar .btn-back {
             font-size: 1.5em;
-            color: #707173; /* Cinza */
+            color: #707173;
         }
 
         .navbar .btn-back:hover {
-            color: #FFF; /* Branco */
-        }
-
-        .navbar .btn-outline-primary {
-            color: #707173; /* Cinza */
-            border-color: #707173; /* Cinza */
-            transition: background-color 0.3s ease;
-        }
-
-        .navbar .btn-outline-primary:hover {
-            background-color: #707173; /* Cinza */
             color: #FFF;
         }
 
-        /* Estilo da lista de tarefas */
-        .task-list {
-            padding: 0;
-            margin: 0;
-            list-style: none;
+        /* Espaçamento entre navbar e conteúdo principal */
+        .content-container {
+            margin-top: 80px; /* Espaço entre navbar e filtros/tabela */
+            padding: 20px;
         }
 
-        .task-list-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px;
-            background-color: #fff; /* Fundo branco */
-            border: 1px solid #e1e1e1;
-            margin-bottom: 10px;
+        /* Estilo para a tabela de alunos com fundo e bordas arredondadas */
+        .table-container {
+            width: 100%;
+            background-color: #ffffff;
             border-radius: 8px;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 20px;
         }
 
-        .task-list-item img {
-            max-width: 50px;
-            margin-right: 15px;
+        /* Botão flutuante no canto superior esquerdo */
+        .float-button {
+            position: fixed;
+            top: 15%;
+            left: 5%;
+            background-color: #007bff;
+            color: #fff;
             border-radius: 50%;
-        }
-
-        .task-list-item .task-info {
-            flex-grow: 1;
+            width: 60px;
+            height: 60px;
             display: flex;
             align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0px 4px 8px rgba(0,0,0,0.3);
+            cursor: pointer;
         }
 
-        .task-list-item .task-info p {
-            margin: 0 15px;
-            font-size: 0.875em;
-            color: #777;
+        .float-button:hover {
+            background-color: #0056b3;
         }
 
+        /* Estilo do status */
         .status {
             padding: 5px 10px;
             border-radius: 5px;
@@ -104,11 +103,16 @@
         }
 
         .status-normal {
-            background-color: #28a745; /* Verde */
+            background-color: #28a745;
         }
 
         .status-pendente {
-            background-color: #dc3545; /* Vermelho */
+            background-color: #dc3545;
+        }
+
+        /* Dropdown compacto dentro da tabela */
+        .dropdown-menu {
+            min-width: auto;
         }
 
         /* Custom Modal Style */
@@ -180,108 +184,126 @@
         </div>
     </nav>
 
-    <section class="vh-100 gradient-custom-2 d-flex justify-content-center align-items-start">
-        <div class="container py-5">
-            <div class="button-group">
-                <button class="btn btn-primary" onclick="openAdicionarAlunosModal()">Adicionar Alunos</button>
-                <button class="btn btn-primary" onclick="openClassroomsModal()">Classrooms</button>
-                <button class="btn btn-primary" onclick="openFinalizarEtapaModal()">Finalizar Etapa</button>
-                <a href="/admin/alunosdesativados" class="btn btn-secondary">Alunos Desativos</a>
+    <!-- Seção principal com filtros e lista de alunos -->
+    <section class="content-container container">
+        
+        <div class="container mb-4">
+
+            <!-- Botão seleção opções -->
+            <div class="float-button" data-bs-toggle="modal" data-bs-target="#mainMenuModal">
+                <i class="fa fa-plus"></i>
             </div>
-            
-            <div class="container mb-4">
-                <div class="row">
-                    <div class="col-md-3">
-                        <input type="text" id="searchName" class="form-control" placeholder="Pesquisar por Nome">
-                    </div>
-                    <div class="col-md-3">
-                        <select id="filterEtapa" class="form-select">
-                            <option value="">Filtrar por Etapa</option>
-                            <option value="Estágio I: Planejamento">Estágio I: Planejamento</option>
-                            <option value="Estágio I: Desenvolvimento">Estágio I: Desenvolvimento</option>
-                            <option value="Estágio II: Desenvolvimento">Estágio II: Desenvolvimento</option>
-                            <option value="Estágio II: Final">Estágio II: Final</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <select id="filterStatus" class="form-select">
-                            <option value="">Filtrar por Status</option>
-                            <option value="0">Normal</option>
-                            <option value="1">Pendente</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <input type="text" id="filterOrientador" class="form-control" placeholder="Filtrar por Orientador">
-                    </div>
+
+            <div class="row">
+                <div class="col-md-3">
+                    <input type="text" id="searchName" class="form-control" placeholder="Pesquisar por Nome">
                 </div>
-            </div>
-
-
-            <div class="row d-flex justify-content-center align-items-center">
-                <div class="col-md-12 col-xl-10">
-                    <div class="card mask-custom">
-                        <div class="card-body p-4">
-
-                            <table class="table mb-0">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th scope="col">Nome</th>
-                                        <th scope="col">Matrícula</th>
-                                        <th scope="col">Etapa</th>
-                                        <th scope="col">Email</th>
-                                        <th scope="col">Orientador</th>
-                                        <th scope="col">Status</th>
-                                        <th scope="col">Ações</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($alunos as $aluno)
-                                    <tr class="fw-normal">
-                                        <td class="align-middle">
-                                            <span>{{ $aluno->nome }}</span>
-                                        </td>
-                                        <td class="align-middle">
-                                            <span>{{ $aluno->matricula }}</span>
-                                        </td>
-                                        <td class="align-middle">
-                                            @if($aluno->etapa==1)
-                                            <span>Estágio I: Planejamento</span>
-                                            @elseif($aluno->etapa==2)
-                                            <span>Estágio I: Desenvolvimento</span>
-                                            @elseif($aluno->etapa==3)
-                                            <span>Estágio II: Desenvolvimento</span>
-                                            @elseif($aluno->etapa==4)
-                                            <span>Estágio II: Final</span>
-                                            @else
-                                            <span>ERRO</span>
-                                            @endif
-                                        </td>
-                                        <td class="align-middle">
-                                            <span>{{ $aluno->email_aluno }}</span>
-                                        </td>
-                                        <td class="align-middle">
-                                            <span>{{ $aluno->email_orientador }}</span>
-                                        </td>
-                                        <td class="align-middle">
-                                            <h6 class="mb-0"><span class="badge {{ $aluno->pendente ? 'bg-danger' : 'bg-success' }}">{{ $aluno->pendente ? 'Pendente' : 'Normal' }}</span></h6>
-                                        </td>
-                                        <td class="align-middle">
-                                            <button class="btn btn-primary mb-1 alterar-bimestre" data-email="{{ $aluno->email_aluno }}">Alterar Etapa</button>
-                                            <button class="btn btn-primary mb-1 alterar-professor" data-email="{{ $aluno->email_aluno }}">Alterar Professor</button>
-                                            <button class="btn btn-danger mb-1 alterar-status" data-email="{{ $aluno->email_aluno }}">Alterar status</button>
-                                            <button class="btn btn-danger mb-1 desativar-aluno" data-email="{{ $aluno->email_aluno }}">Desativar</button>
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-
-                        </div>
-                    </div>
+                <div class="col-md-3">
+                    <select id="filterEtapa" class="form-select">
+                        <option value="">Filtrar por Etapa</option>
+                        <option value="Estágio I: Planejamento">Estágio I: Planejamento</option>
+                        <option value="Estágio I: Desenvolvimento">Estágio I: Desenvolvimento</option>
+                        <option value="Estágio II: Desenvolvimento">Estágio II: Desenvolvimento</option>
+                        <option value="Estágio II: Final">Estágio II: Final</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select id="filterStatus" class="form-select">
+                        <option value="">Filtrar por Status</option>
+                        <option value="0">Normal</option>
+                        <option value="1">Pendente</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <input type="text" id="filterOrientador" class="form-control" placeholder="Filtrar por Orientador">
                 </div>
             </div>
         </div>
+
+        <!-- Tabela de alunos com fundo branco, borda arredondada e sombra -->
+        <div class="table-container">
+            <table class="table mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th scope="col">Nome</th>
+                        <th scope="col">Matrícula</th>
+                        <th scope="col">Etapa</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Orientador</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Classroom Atual</th>
+                        <th scope="col">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($alunos as $aluno)
+                    <tr class="fw-normal">
+                        <td class="align-middle">{{ $aluno->nome }}</td>
+                        <td class="align-middle">{{ $aluno->matricula }}</td>
+                        <td class="align-middle">
+                            @if($aluno->etapa==1)
+                            Estágio I: Planejamento
+                            @elseif($aluno->etapa==2)
+                            Estágio I: Desenvolvimento
+                            @elseif($aluno->etapa==3)
+                            Estágio II: Desenvolvimento
+                            @elseif($aluno->etapa==4)
+                            Estágio II: Final
+                            @else
+                            ERRO
+                            @endif
+                        </td>
+                        <td class="align-middle">{{ $aluno->email_aluno }}</td>
+                        <td class="align-middle">{{ $aluno->email_orientador }}</td>
+                        <td class="align-middle">
+                            <span class="badge {{ $aluno->pendente ? 'bg-danger' : 'bg-success' }}">{{ $aluno->pendente ? 'Pendente' : 'Normal' }}</span>
+                        </td>
+                        <td class="align-middle">Etapa I: Planejamento 2024</td>
+                        <td class="align-middle">
+                            <button class="btn btn-danger btn-sm desativar-aluno" data-email="{{ $aluno->email_aluno }}">Desativar</button>
+                            <div class="btn-group dropend"> <!-- Adiciona dropend para posicionar o dropdown à direita -->
+                                <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Ações
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end fs-6 p-3">
+                                    <li><button class="dropdown-item alterar-bimestre" data-bs-toggle="modal" data-bs-target="#alterarEtapaModal" data-email="{{ $aluno->email_aluno }}">Alterar Etapa</button></li>
+                                    <li><button class="dropdown-item alterar-professor" data-bs-toggle="modal" data-bs-target="#alterarProfessorModal" data-email="{{ $aluno->email_aluno }}">Alterar Professor</button></li>
+                                    <li><button class="dropdown-item alterar-status" data-bs-toggle="modal" data-bs-target="#alterarStatusModal" data-email="{{ $aluno->email_aluno }}">Alterar Status</button></li>
+                                </ul>
+                            </div>
+                        </td>
+
+
+
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
     </section>
+
+
+    <div class="modal fade" id="mainMenuModal" tabindex="-1" aria-labelledby="mainMenuModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="mainMenuModalLabel">Opções</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <button class="btn btn-primary w-100 mb-2" onclick="openAdicionarAlunosModal()">Adicionar Alunos</button>
+                    <button class="btn btn-primary w-100 mb-2" onclick="openClassroomsModal()">Classrooms</button>
+                    <button class="btn btn-primary w-100 mb-2" onclick="openFinalizarEtapaModal()">Finalizar Etapa</button>
+                    <a class="btn btn-primary w-100 mb-2" href="/admin/alunosdesativados">Alunos Desativos</a>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" onclick="submitAlterarEtapa()">Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <!-- Modal para Adicionar Alunos -->
     <div class="modal fade" id="adicionarAlunosModal" tabindex="-1" aria-labelledby="adicionarAlunosModalLabel" aria-hidden="true">
@@ -498,7 +520,6 @@
             </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
         // Função para abrir o modal de adicionar alunos

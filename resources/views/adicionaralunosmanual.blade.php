@@ -22,7 +22,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            height: 65px; /* Mantém o tamanho fixo do navbar */
+            height: 65px;
         }
 
         .navbar .logo {
@@ -48,52 +48,62 @@
             color: #FFF; /* Branco */
         }
 
-        .navbar .btn-outline-primary {
-            color: #707173; /* Cinza */
-            border-color: #707173; /* Cinza */
-            transition: background-color 0.3s ease;
+        .container {
+            margin-top: 80px; /* Espaço entre navbar e conteúdo principal */
+            padding: 20px;
         }
 
-        .navbar .btn-outline-primary:hover {
-            background-color: #707173; /* Cinza */
-            color: #FFF;
+        h1 {
+            font-size: 1.8em;
+            color: #333;
+            margin-bottom: 20px;
         }
 
-        .task-list {
-            padding: 0;
-            margin: 0;
-            list-style: none;
+        /* Tabela com bordas arredondadas e espaçamento */
+        .table {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
         }
 
-        .task-list-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+        .table th, .table td {
+            vertical-align: middle;
+            padding: 15px;
+        }
+
+        .table th {
+            background-color: #f2f2f2;
+            color: #F29400; /* Laranja */
+        }
+
+        /* Estilo dos inputs e selects */
+        .table input, .table select {
+            border-radius: 8px;
+            border: 1px solid #ddd;
             padding: 10px;
-            background-color: #fff;
-            border: 1px solid #e1e1e1;
-            margin-bottom: 10px;
+            font-size: 1em;
+            width: 100%;
+        }
+
+        .table input:focus, .table select:focus {
+            border-color: #F29400; /* Laranja */
+            box-shadow: 0 0 5px rgba(242, 148, 0, 0.5);
+        }
+
+        /* Estilo dos botões */
+        .btn-primary {
+            background-color: #F29400; /* Laranja */
+            border-color: #F29400; /* Laranja */
+            font-size: 1.2em;
+            padding: 10px 20px;
             border-radius: 8px;
         }
 
-        .task-list-item img {
-            max-width: 50px;
-            margin-right: 15px;
-            border-radius: 50%;
+        .btn-primary:hover {
+            background-color: #e47c00;
         }
 
-        .task-list-item .task-info {
-            flex-grow: 1;
-            display: flex;
-            align-items: center;
-        }
-
-        .task-list-item .task-info p {
-            margin: 0 15px;
-            font-size: 0.875em;
-            color: #777;
-        }
-
+        /* Estilo das opções de status */
         .status {
             padding: 5px 10px;
             border-radius: 5px;
@@ -110,6 +120,7 @@
             background-color: #dc3545; /* Vermelho */
         }
 
+        /* Modal Customizado */
         .modal-content {
             border-radius: 8px;
             border: 1px solid #f29400;
@@ -129,81 +140,65 @@
             background-color: #707173;
             border-color: #707173;
         }
-
-        .dropzone {
-            border: 2px dashed #f29400;
-            border-radius: 8px;
-            padding: 20px;
-            text-align: center;
-            margin-bottom: 20px;
-            cursor: pointer;
-        }
-
-        .dropzone:hover {
-            background-color: #f7f7f7;
-        }
-
-        .dropzone input[type="file"] {
-            display: none;
-        }
-
-        .mask-custom {
-            background: white;
-            border-radius: 2em;
-            backdrop-filter: blur(25px);
-            border: 2px solid rgba(255, 255, 255, 0.05);
-            background-clip: padding-box;
-            box-shadow: 10px 10px 10px rgba(46, 54, 68, 0.03);
-            width: 100%;
-        }
-
-        .button-group {
-            margin: 20px 0;
-            display: flex;
-            justify-content: center;
-        }
     </style>
 </head>
 <body>
 
-    <div class="container">
-    <h1>Preencha as informações que faltam</h1>
-    <form action="{{ url('/admin/alunosadmin/salvar-dados') }}" method="POST"> 
-    @csrf
-    <input type="hidden" name="id_classroom" value="{{ $idClassroom }}">
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Matrícula</th>
-                <th>Nome</th>
-                <th>Email</th>
-                <th>Email Professor</th>
-            </tr>
-        </thead>
-        <tbody>
-        @foreach($alunosIncompletos as $aluno)
-        <tr>
-            <td><input type="number" name="matriculas[]" value="{{ $aluno['matricula'] ?? '' }}"></td>
-            <td><input type="text" name="nomes[]" value="{{ $aluno['nome'] ?? '' }}"></td>
-            <td><input type="email" name="emails[]" value="{{ $aluno['email'] ?? '' }}"></td>
-            <td>
-                <select name="emailsProfessores[]">
-                    @foreach($users as $user)
-                        <option value="{{ $user->email }}" {{ isset($aluno['emailProfessor']) && $aluno['emailProfessor'] == $user->email ? 'selected' : '' }}>
-                            {{ $user->nome }}
-                        </option>
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
+        <a href="/admin" class="btn-back">
+            <i class="fa fa-arrow-left"></i>
+        </a>
+        <div class="logo">
+            <img src="{{asset('/images/logounifil.png')}}" alt="Logo Unifil">
+        </div>
+        <div>
+            <p style="color:red">ADMIN/COORDENADORES</p>
+        </div>
+    </nav>
+
+    <!-- Seção principal com filtros e lista de alunos -->
+    <section class="container">
+
+        <h1>Preencha as informações que faltam</h1>
+
+        <form action="{{ url('/admin/alunosadmin/salvar-dados') }}" method="POST"> 
+            @csrf
+            <input type="hidden" name="id_classroom" value="{{ $idClassroom }}">
+
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Matrícula</th>
+                        <th>Nome</th>
+                        <th>Email</th>
+                        <th>Email Professor</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($alunosIncompletos as $aluno)
+                    <tr>
+                        <td><input type="number" name="matriculas[]" value="{{ $aluno['matricula'] ?? '' }}"></td>
+                        <td><input type="text" name="nomes[]" value="{{ $aluno['nome'] ?? '' }}"></td>
+                        <td><input type="email" name="emails[]" value="{{ $aluno['email'] ?? '' }}"></td>
+                        <td>
+                            <select name="emailsProfessores[]">
+                                @foreach($users as $user)
+                                    <option value="{{ $user->email }}" {{ isset($aluno['emailProfessor']) && $aluno['emailProfessor'] == $user->email ? 'selected' : '' }}>
+                                        {{ $user->nome }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </td>
+                    </tr>
                     @endforeach
-                </select>
-            </td>
-        </tr>
-        @endforeach
-        </tbody>
-    </table>
-    <button type="submit" class="btn btn-primary">Salvar</button>
-</form>
-</div>
+                </tbody>
+            </table>
+
+            <button type="submit" class="btn btn-primary">Salvar</button>
+        </form>
+
+    </section>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-
 </body>
 </html>

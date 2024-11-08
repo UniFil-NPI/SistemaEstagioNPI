@@ -127,30 +127,6 @@ class ClassroomController extends Controller
     }
 
 
-    public function sincronizarAtividades($idClassroom)
-    {
-        $classroom = Classroom::findOrFail($idClassroom);
-        $this->client->setAccessToken(Cookie::get('google_login_token'));
-        $this->service = new GoogleClassroom($this->client);
-
-        $courseWork = $this->service->courses_courseWork->listCoursesCourseWork($idClassroom);
-
-        foreach ($courseWork->getCourseWork() as $work) {
-            Atividade::updateOrCreate(
-                ['titulo' => $work->title, 'id_classroom' => $idClassroom],
-                [
-                    'data_criacao' => now(),
-                    'data_entrega' => $work->dueDate,
-                    'nota' => 0,
-                    'entregue' => false,
-                    'titulo' => $work->title,
-                ]
-            );
-        }
-
-        return "Atividades sincronizadas com sucesso!";
-    }
-
 
     public function verificarClassroomAtivo($idClassroom)
     {

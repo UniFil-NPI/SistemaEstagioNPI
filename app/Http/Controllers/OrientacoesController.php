@@ -33,7 +33,7 @@ class OrientacoesController extends Controller
         return $this->pegarOrientacoes($email_aluno, $etapa_aluno);
     }
 
-    public function excluirOrientacao($id_orientacao, $email_aluno ,$etapa_aluno)
+    public function excluirOrientacao($id_orientacao)
     {
         $orientacao = Orientacao::find($id_orientacao);
         if ($orientacao) {

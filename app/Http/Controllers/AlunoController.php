@@ -226,7 +226,7 @@ class AlunoController extends Controller
 
     public function avaliarAprovacao($etapa, $novoClassroomID = null)
     {
-        $alunos = Aluno::where('aluno.etapa', $etapa)->get(); // Também referenciando corretamente 'etapa'
+        $alunos = Aluno::where('aluno.etapa', $etapa)->get();
 
 
         $atividadesController = new AtividadesController();
@@ -269,45 +269,35 @@ class AlunoController extends Controller
 
     public function finalizarEtapa(Request $request)
 {
-    // Captura os dados do formulário
     $classroomID = $request->input('classroom_id');
     $classroomAtual = $request->input('classroom_atual');
     $etapa = $request->input('etapa');
-    $aprovados = $request->input('aprovados', []); // Captura a lista de alunos aprovados
+    $aprovados = $request->input('aprovados', []);
+    dd($aprovados);
 
-    // Busca alunos associados ao classroom e à etapa
     $alunos = Aluno::where('etapa', $etapa)->get();
 
-    // Debug: Output the retrieved alunos
-    \Log::info('Retrieved alunos:', ['alunos' => $alunos]);
-
-    // If no alunos found, log a message and return
     if ($alunos->isEmpty()) {
-        \Log::warning('No alunos found for classroom ID: ' . $classroomID . ' and etapa: ' . $etapa);
         return redirect('/admin/alunosadmin')->with('error', 'Nenhum aluno encontrado para esta turma e etapa.');
     }
 
-    // Processa cada aluno
     foreach ($alunos as $aluno) {
-        // Verifica se o aluno está na lista de aprovados
         $aprovado = in_array($aluno->email_aluno, $aprovados);
 
         if ($aprovado) {
-            // Aluno aprovado
             if ($aluno->etapa < 4) {
-                $aluno->etapa += 1; // Aumenta a etapa
+                $aluno->etapa += 1;
             } else {
-                $aluno->ativo = false; // Desativa o aluno se já estiver na última etapa
+                $aluno->ativo = false;
             }
-            $aluno->save(); // Salva as alterações no aluno
+            $aluno->save();
         } else {
-            // Aluno reprovado
-            $aluno->pendente = true; // Marca o aluno como pendente ou reprovado
-            $aluno->save(); // Salva as alterações no aluno
+            $aluno->pendente = true;
+            $aluno->save();
+            continue;
         }
 
         if ($classroomID && $classroomID != $classroomAtual) {
-            // Chama a função mudarClassroom para mudar o classroom do aluno
             $this->mudarClassroom($aluno, $classroomID);
         }
     }
