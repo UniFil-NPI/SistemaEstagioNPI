@@ -17,157 +17,218 @@
 
     <style>
         body {
-            margin-top: 20px;
-            background-color: lightgray;
-        }
+    margin-top: 20px;
+    background-color: lightgray;
+}
 
-        /* Estilo da navbar */
-        .navbar {
-            background-color: #F29400;
-            padding: 10px 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            height: 65px;
-        }
+/* Estilo da navbar */
+.navbar {
+    background-color: #F29400;
+    padding: 10px 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 65px;
+    z-index: 1000; /* Definir z-index para garantir que a navbar esteja acima dos outros conteúdos, mas abaixo dos modais */
+}
 
-        /* Logo centralizada */
-        .navbar .logo {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+/* Logo centralizada */
+.navbar .logo {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
-        .navbar .logo img {
-            height: 70%;
-            width: 70%;
-        }
+.navbar .logo img {
+    height: 70%;
+    width: 70%;
+}
 
-        .navbar .btn-back {
-            font-size: 1.5em;
-            color: #707173;
-        }
+.navbar .btn-back {
+    font-size: 1.5em;
+    color: #707173;
+}
 
-        .navbar .btn-back:hover {
-            color: #FFF;
-        }
+.navbar .btn-back:hover {
+    color: #FFF;
+}
 
-        /* Espaçamento entre navbar e conteúdo principal */
-        .content-container {
-            margin-top: 80px; /* Espaço entre navbar e filtros/tabela */
-            padding: 20px;
-        }
+/* Espaçamento entre navbar e conteúdo principal */
+.content-container {
+    margin-top: 80px; /* Espaço entre navbar e filtros/tabela */
+    padding: 20px;
+}
 
-        /* Estilo para a tabela de alunos com fundo e bordas arredondadas */
-        .table-container {
-            width: 100%;
-            background-color: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-        }
+/* Estilo para a tabela de alunos com fundo e bordas arredondadas */
+.table-container {
+    width: 100%;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+}
 
-        /* Botão flutuante no canto superior esquerdo */
-        .float-button {
-            position: fixed;
-            top: 15%;
-            left: 5%;
-            background-color: #007bff;
-            color: #fff;
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            box-shadow: 0px 4px 8px rgba(0,0,0,0.3);
-            cursor: pointer;
-        }
+/* Estilo do status */
+.status {
+    padding: 5px 10px;
+    border-radius: 5px;
+    color: #fff;
+    font-size: 0.875em;
+    font-weight: bold;
+}
 
-        .float-button:hover {
-            background-color: #0056b3;
-        }
+.status-normal {
+    background-color: #28a745;
+}
 
-        /* Estilo do status */
-        .status {
-            padding: 5px 10px;
-            border-radius: 5px;
-            color: #fff;
-            font-size: 0.875em;
-            font-weight: bold;
-        }
+.status-pendente {
+    background-color: #dc3545;
+}
 
-        .status-normal {
-            background-color: #28a745;
-        }
+/* Dropdown compacto dentro da tabela */
+.dropdown-menu {
+    min-width: auto;
+}
 
-        .status-pendente {
-            background-color: #dc3545;
-        }
+/* Custom Modal Style */
+.modal-content {
+    border-radius: 8px;
+    border: 1px solid #f29400;
+    position: relative;
+    z-index: 1050; /* Coloca o conteúdo do modal acima da máscara de fundo */
+}
 
-        /* Dropdown compacto dentro da tabela */
-        .dropdown-menu {
-            min-width: auto;
-        }
+.modal-header {
+    background-color: #f29400;
+    color: #fff;
+}
 
-        /* Custom Modal Style */
-        .modal-content {
-            border-radius: 8px;
-            border: 1px solid #f29400;
-        }
+.modal-footer .btn-primary {
+    background-color: #f29400;
+    border-color: #f29400;
+}
 
-        .modal-header {
-            background-color: #f29400;
-            color: #fff;
-        }
+.modal-footer .btn-secondary {
+    background-color: #707173;
+    border-color: #707173;
+}
 
-        .modal-footer .btn-primary {
-            background-color: #f29400;
-            border-color: #f29400;
-        }
+/* Modificando o estilo da máscara de fundo do modal */
+.modal-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Opacidade para a máscara */
+    z-index: 1040; /* Definir z-index para que a máscara fique abaixo do conteúdo do modal */
+}
 
-        .modal-footer .btn-secondary {
-            background-color: #707173;
-            border-color: #707173;
-        }
+/* Aumentando a visibilidade da máscara ao abrir o modal */
+.modal-open .modal-backdrop {
+    opacity: 1;
+}
 
-        .dropzone {
-            border: 2px dashed #f29400;
-            border-radius: 8px;
-            padding: 20px;
-            text-align: center;
-            margin-bottom: 20px;
-            cursor: pointer;
-        }
+/* Ajustes do FAB */
+.fab-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    z-index: 1055; /* Definir z-index para garantir que o FAB fique acima do conteúdo, mas abaixo dos modais */
+}
 
-        .dropzone:hover {
-            background-color: #f7f7f7;
-        }
+.fab-btn {
+    background-color: #F29400; /* Laranja */
+    color: white;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 30px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    transition: transform 0.3s ease-in-out;
+}
 
-        .dropzone input[type="file"] {
-            display: none;
-        }
+.fab-btn:hover {
+    background-color: #e58200; /* Laranja mais escuro para o hover */
+}
 
-        .mask-custom {
-            background: white;
-            border-radius: 2em;
-            backdrop-filter: blur(25px);
-            border: 2px solid rgba(255, 255, 255, 0.05);
-            background-clip: padding-box;
-            box-shadow: 10px 10px 10px rgba(46, 54, 68, 0.03);
-            width: 100%;
-        }
+.fab-options {
+    display: none;
+    flex-direction: column;
+    margin-top: 10px;
+    transition: opacity 0.3s ease;
+    align-items: flex-end;
+}
 
-        .button-group {
-            margin: 20px 0;
-            display: flex;
-            justify-content: center;
-        }
+.fab-option {
+    background-color: #F29400;
+    color: white;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    margin-bottom: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    transition: transform 0.3s ease-in-out;
+}
+
+.fab-option:hover {
+    background-color: #e58200;
+    transform: scale(1.1);
+}
+
+/* Botão de fechar o FAB (vermelho) */
+.fab-option.close {
+    background-color: #dc3545; /* Vermelho */
+}
+
+.fab-option.close:hover {
+    background-color: #c82333; /* Vermelho mais escuro */
+}
+
+.fab-container.active .fab-options {
+    display: flex;
+    opacity: 1;
+}
+
+.fab-container.active .fab-btn {
+    transform: rotate(45deg); /* Efeito de rotação para indicar que o menu está aberto */
+}
+
+/* Estilo da legenda ao lado das opções */
+.fab-option-wrapper {
+    display: flex;
+    align-items: center; /* Alinha os ícones e as legendas horizontalmente */
+    justify-content: flex-start; /* Alinha à esquerda */
+    margin-bottom: 10px; /* Distância entre as opções do FAB */
+}
+
+.fab-option-wrapper .fab-option {
+    margin-right: 10px; /* Distância entre o ícone e a legenda */
+}
+
+.fab-option-wrapper .fab-option-label {
+    font-size: 0.75em;
+    color: #333;
+    margin-top: 0; /* Remover margem superior */
+}
+
+
     </style>
 </head>
 <body>
@@ -188,11 +249,6 @@
     <section class="content-container container">
         
         <div class="container mb-4">
-
-            <!-- Botão seleção opções -->
-            <div class="float-button" data-bs-toggle="modal" data-bs-target="#mainMenuModal">
-                <i class="fa fa-plus"></i>
-            </div>
 
             <div class="row">
                 <div class="col-md-3">
@@ -215,7 +271,7 @@
                     </select>
                 </div>
                 <div class="col-md-3">
-                    <input type="text" id="filterOrientador" class="form-control" placeholder="Filtrar por Orientador">
+                    <input type="text" id="filterprofessor" class="form-control" placeholder="Filtrar por professor">
                 </div>
             </div>
         </div>
@@ -229,7 +285,7 @@
                         <th scope="col">Matrícula</th>
                         <th scope="col">Etapa</th>
                         <th scope="col">Email</th>
-                        <th scope="col">Orientador</th>
+                        <th scope="col">Professor</th>
                         <th scope="col">Status</th>
                         <th scope="col">Classroom Atual</th>
                         <th scope="col">Ações</th>
@@ -283,26 +339,69 @@
     </section>
 
 
-    <div class="modal fade" id="mainMenuModal" tabindex="-1" aria-labelledby="mainMenuModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="mainMenuModalLabel">Opções</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <button class="btn btn-primary w-100 mb-2" onclick="openAdicionarAlunosModal()">Adicionar Alunos</button>
-                    <button class="btn btn-primary w-100 mb-2" onclick="openClassroomsModal()">Classrooms</button>
-                    <button class="btn btn-primary w-100 mb-2" onclick="openFinalizarEtapaModal()">Finalizar Etapa</button>
-                    <a class="btn btn-primary w-100 mb-2" href="/admin/alunosdesativados">Alunos Desativos</a>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary" onclick="submitAlterarEtapa()">Salvar</button>
-                </div>
+    <div class="fab-container" id="fabContainer">
+    <!-- Botão flutuante principal -->
+    <div class="fab-btn" id="fabBtn" onclick="toggleFabMenu()">
+        <i class="fa fa-plus"></i>
+    </div>
+
+    <!-- Opções do FAB -->
+    <div class="fab-options" id="fabOptions">
+        <div class="fab-option-wrapper">
+            <div class="fab-option-label">Adicionar Alunos</div>
+            <div class="fab-option">
+                <i class="fa fa-user-plus" onclick="openAdicionarAlunosModal()"></i>
+            </div>
+        </div>
+
+        <div class="fab-option-wrapper">
+            <div class="fab-option-label">Abrir Classrooms</div>
+            <div class="fab-option">
+                <i class="fa fa-flag" onclick="openClassroomsModal()"></i>
+            </div>
+        </div>
+
+        <div class="fab-option-wrapper">
+            <div class="fab-option-label">Finalizar Etapa</div>
+            <div class="fab-option">
+                <i class="fa fa-flag" onclick="openFinalizarEtapaModal()"></i>
+            </div>
+        </div>
+
+        <div class="fab-option-wrapper">
+            <div class="fab-option-label">Alunos Desativados</div>
+            <div class="fab-option">
+                <a class="fa fa-user-times" href="/admin/alunosdesativados"></a>
+            </div>
+        </div>
+
+        <div class="fab-option-wrapper">
+        <div class="fab-option-label">Fechar</div>
+            <div class="fab-option close" onclick="toggleFabMenu()">
+                <i class="fa fa-times"></i>
             </div>
         </div>
     </div>
+
+
+
+    <script>
+        function toggleFabMenu() {
+            // Pegando os elementos do FAB e o botão de abrir
+            const fabContainer = document.getElementById('fabContainer');
+            const fabBtn = document.getElementById('fabBtn');
+            const fabOptions = document.getElementById('fabOptions');
+
+            // Alternando a visibilidade do menu e do botão
+            fabContainer.classList.toggle('active'); // Mostrar ou esconder as opções
+
+            if (fabContainer.classList.contains('active')) {
+                fabBtn.style.display = 'none'; // Esconde o botão de abrir
+            } else {
+                fabBtn.style.display = 'flex'; // Volta a mostrar o botão de abrir
+            }
+        }
+    </script>
 
 
     <!-- Modal para Adicionar Alunos -->
@@ -653,13 +752,13 @@
         document.getElementById('searchName').addEventListener('input', filterTable);
         document.getElementById('filterEtapa').addEventListener('change', filterTable);
         document.getElementById('filterStatus').addEventListener('change', filterTable);
-        document.getElementById('filterOrientador').addEventListener('input', filterTable);
+        document.getElementById('filterprofessor').addEventListener('input', filterTable);
 
         function filterTable() {
             const searchName = document.getElementById('searchName').value.toLowerCase();
             const filterEtapa = document.getElementById('filterEtapa').value;
             const filterStatus = document.getElementById('filterStatus').value;
-            const filterOrientador = document.getElementById('filterOrientador').value.toLowerCase();
+            const filterprofessor = document.getElementById('filterprofessor').value.toLowerCase();
 
             const rows = document.querySelectorAll('tbody tr');
 
@@ -667,14 +766,14 @@
                 const nome = row.querySelector('td:nth-child(1)').innerText.toLowerCase();
                 const etapa = row.querySelector('td:nth-child(3)').innerText;
                 const status = row.querySelector('td:nth-child(6) .badge').classList.contains('bg-danger') ? '1' : '0';
-                const orientador = row.querySelector('td:nth-child(5)').innerText.toLowerCase();
+                const professor = row.querySelector('td:nth-child(5)').innerText.toLowerCase();
 
                 const matchesName = nome.includes(searchName);
                 const matchesEtapa = filterEtapa === "" || etapa.includes(`${filterEtapa}`);
                 const matchesStatus = filterStatus === "" || status === filterStatus;
-                const matchesOrientador = orientador.includes(filterOrientador);
+                const matchesprofessor = professor.includes(filterprofessor);
 
-                if (matchesName && matchesEtapa && matchesStatus && matchesOrientador) {
+                if (matchesName && matchesEtapa && matchesStatus && matchesprofessor) {
                     row.style.display = '';
                 } else {
                     row.style.display = 'none';

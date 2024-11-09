@@ -185,11 +185,6 @@
         
         <div class="container mb-4">
 
-            <!-- Botão seleção opções -->
-            <div class="float-button" data-bs-toggle="modal" data-bs-target="#mainMenuModal">
-                <i class="fa fa-plus"></i>
-            </div>
-
         <!-- Tabela de alunos com fundo branco, borda arredondada e sombra -->
         <div class="table-container">
             <table class="table mb-0">
@@ -240,3 +235,4 @@
 
 </body>
 </html>
+

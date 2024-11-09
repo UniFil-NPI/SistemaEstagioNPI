@@ -84,7 +84,6 @@ class SincronizarAtividadesCommand extends Command
                             'data_criacao' => $dataCriacao,
                             'data_entrega' => $dataEntrega,
                             'nota' => 0,
-                            'entregue' => false,
                         ]
                     );
                 }

@@ -268,42 +268,61 @@ class AlunoController extends Controller
 
 
     public function finalizarEtapa(Request $request)
-{
-    $classroomID = $request->input('classroom_id');
-    $classroomAtual = $request->input('classroom_atual');
-    $etapa = $request->input('etapa');
-    $aprovados = $request->input('aprovados', []);
-    dd($aprovados);
+    {
+        // Captura os dados do request
+        $classroomID = $request->input('classroom_id');
+        $classroomAtual = json_decode($request->input('classroom_atual'), true); // Decodifica o JSON (se for o caso)
+        $etapa = $request->input('etapa');
+        $aprovados = $request->input('aprovados', []); // O array de aprovados
 
-    $alunos = Aluno::where('etapa', $etapa)->get();
+        // Verifique se o array de aprovados está sendo passado corretamente
+        //dd($aprovados);
 
-    if ($alunos->isEmpty()) {
-        return redirect('/admin/alunosadmin')->with('error', 'Nenhum aluno encontrado para esta turma e etapa.');
-    }
+        // Busca os alunos da etapa
+        $alunos = Aluno::where('etapa', $etapa)->get();
 
-    foreach ($alunos as $aluno) {
-        $aprovado = in_array($aluno->email_aluno, $aprovados);
+        if ($alunos->isEmpty()) {
+            return redirect('/admin/alunosadmin')->with('error', 'Nenhum aluno encontrado para esta turma e etapa.');
+        }
 
-        if ($aprovado) {
-            if ($aluno->etapa < 4) {
-                $aluno->etapa += 1;
+        // Itera sobre cada aluno e faz as verificações
+        foreach ($alunos as $aluno) {
+            // Verifica se o aluno foi aprovado, comparando com o array de aprovados
+            $aprovado = in_array($aluno->email_aluno, $aprovados);
+
+            // Lógica de aprovação/reprovação
+            if ($aprovado) {
+                if ($aluno->etapa == 4) {
+                    $aluno->ativo = false;
+                }
+                else if ($aluno->etapa == 3){
+                    $aluno->etapa == 4;
+                }
+                else if ($aluno->etapa == 2){
+                    $aluno->etapa == 3;
+                }
+                else if ($aluno->etapa == 1){
+                    $aluno->etapa == 2;
+                }
+                else {
+                    $aluno->pendente = true; // Desativa o aluno quando terminar a última etapa
+                }
+                $aluno->save();
             } else {
-                $aluno->ativo = false;
+                $aluno->pendente = true; // Marca como pendente caso não tenha sido aprovado
+                $aluno->save();
+                continue;
             }
-            $aluno->save();
-        } else {
-            $aluno->pendente = true;
-            $aluno->save();
-            continue;
+
+            // Caso o classroom atual seja diferente do novo classroom, faz a troca
+            if ($classroomID && isset($classroomAtual['id_classroom']) && $classroomID != $classroomAtual['id_classroom']) {
+                $this->mudarClassroom($aluno, $classroomID);
+            }
         }
 
-        if ($classroomID && $classroomID != $classroomAtual) {
-            $this->mudarClassroom($aluno, $classroomID);
-        }
+        return redirect('/admin/alunosadmin')->with('success', 'Avaliação finalizada com sucesso.');
     }
 
-    return redirect('/admin/alunosadmin')->with('success', 'Avaliação finalizada com sucesso.');
-}
 
 
 

@@ -155,44 +155,48 @@
 
         <!-- Tabela de Alunos -->
         <div id="alunosContainer" class="table-responsive">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Nome</th>
-                        <th>Email</th>
-                        <th>Média Final</th>
-                        <th>Carga Horária</th>
-                        <th>Status</th>
-                        <th>Está no Novo Classroom?</th>
-                        <th>Aprovar</th> <!-- Adiciona coluna para marcar aprovação -->
-                    </tr>
-                </thead>
-                <tbody id="alunosTableBody">
-                    @foreach ($alunosAvaliados as $aluno)
-                    <tr>
-                        <td>{{ $aluno['nome'] }}</td>
-                        <td>{{ $aluno['email'] }}</td>
-                        <td>{{ $aluno['media'] }}</td>
-                        <td>{{ $aluno['cargaHoraria'] }} orientações</td>
-                        <td>{{ $aluno['status'] }}</td>
-                        <td>{{ $aluno['novoClassroom'] }}</td>
-                        <td>
-                            <input type="checkbox" name="aprovados[]" value="{{ $aluno['status'] == 'Aprovado' ? $aluno['email'] : '' }}">
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
+        <form method="POST" action="/admin/alunosadmin/passaretapamanual/finalizar">
+    @csrf
+    <input type="hidden" name="classroom_id" value="{{ $novoClassroomID }}">
+    <input type="hidden" name="classroom_atual" value="{{ $classroomAtual }}">
+    <input type="hidden" name="etapa" value="{{ $etapa }}">
 
-            <form method="POST" action="/admin/alunosadmin/passaretapamanual/finalizar">
-                @csrf
-                <input type="hidden" name="classroom_id" value="{{ $novoClassroomID }}">
-                <input type="hidden" name="classroom_atual" value="{{ $classroomAtual }}">
-                <input type="hidden" name="etapa" value="{{ $etapa }}">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Email</th>
+                <th>Média Final</th>
+                <th>Carga Horária</th>
+                <th>Status</th>
+                <th>Está no Novo Classroom?</th>
+                <th>Aprovar</th> 
+            </tr>
+        </thead>
+        <tbody>
+            @foreach ($alunosAvaliados as $aluno)
+                <tr>
+                    <td>{{ $aluno['nome'] }}</td>
+                    <td>{{ $aluno['email'] }}</td>
+                    <td>{{ $aluno['media'] }}</td>
+                    <td>{{ $aluno['cargaHoraria'] }} orientações</td>
+                    <td>{{ $aluno['status'] }}</td>
+                    <td>{{ $aluno['novoClassroom'] }}</td>
+                    <td>
+                        <!-- Certifique-se de que o 'aprovados[]' está com o valor do e-mail do aluno -->
+                        <input type="checkbox" name="aprovados[]" value="{{ $aluno['email'] }}" 
+                            {{ $aluno['status'] == 'Aprovado' ? 'checked' : '' }} 
+                            {{ $aluno['novoClassroom'] == 1 ? '' : 'disabled' }}>
+                    </td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
 
-                <button type="submit" class="btn btn-success mt-3">Finalizar Etapa</button>
-                <a href="{{ url()->previous() }}" class="btn btn-danger mt-3">Cancelar</a>
-            </form>
+    <button type="submit" class="btn btn-success mt-3">Finalizar Etapa</button>
+    <a href="{{ url()->previous() }}" class="btn btn-danger mt-3">Cancelar</a>
+</form>
+
         </div>
     </div>
 

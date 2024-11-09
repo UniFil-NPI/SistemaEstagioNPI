@@ -29,7 +29,6 @@ class Atividade extends Model
         'data_criacao',
         'data_entrega',
         'nota',
-        'entregue',
         'titulo',
         'id_classroom',
         'email_aluno',

@@ -41,21 +41,17 @@ class AtividadesController extends Controller
         $notas = $request->input('notas', []);
     
         foreach ($notas as $atividadeId => $nota) {
-            // Obter a atividade correspondente ao ID e email do aluno
             $atividade = Atividade::where('id_atividade', $atividadeId)
                         ->where('email_aluno', $email_aluno)
-                        ->first(); // Use first() para obter um único modelo
+                        ->first();
     
             if ($atividade) {
-                // Atualizar a nota
                 $atividade->nota = (int)$nota;
     
                 if (!$atividade->save()) {
-                    // Log ou ação se a atualização falhar
                     Log::error("Falha ao salvar a nota para a atividade $atividadeId");
                 }
             } else {
-                // Log se a atividade não for encontrada
                 Log::error("Atividade com ID $atividadeId não encontrada para o aluno $email_aluno");
             }
         }
@@ -73,17 +69,11 @@ class AtividadesController extends Controller
             return "Aluno não encontrado.";
         }
 
-        //dd($aluno);
-
-        // Filtra atividades para o aluno e o `classroom` específico
         $atividades = Atividade::where('id_classroom', $id_classroom)->where('email_aluno',$email_aluno)->get();
-
-
 
         if ($atividades->isEmpty()) {
             return "Nenhuma atividade encontrada para este classroom e aluno.";
         }
-
 
         $somaNotas = $atividades->sum('nota');
         $quantidadeNotas = $atividades->count();
